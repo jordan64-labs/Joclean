@@ -24,7 +24,7 @@
       --border: #e2e8f0;
       --danger: #dc2626;
       --danger-soft: #fef2f2;
-      --warn: #b45309;
+      --warn: #d97706;
       --warn-soft: #fffbeb;
       --radius: 14px;
     }
@@ -62,7 +62,7 @@
       font-family: "Plus Jakarta Sans", sans-serif;
       font-weight: 800;
       color: var(--blue);
-      font-size: 1.15rem;
+      font-size: 1.12rem;
     }
     .topbar-brand img {
       width: 36px;
@@ -71,7 +71,15 @@
       object-fit: contain;
       border: 1px solid var(--border);
     }
-    .topbar-brand span { color: var(--teal); }
+    .topbar-brand span.accent { color: var(--teal); }
+    .version-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--blue-soft);
+      color: var(--blue);
+      padding: 0.15rem 0.45rem;
+      border-radius: 6px;
+    }
     .site-link {
       font-size: 0.85rem;
       font-weight: 600;
@@ -198,31 +206,57 @@
       border-radius: 8px;
     }
 
+    /* Boutons interactifs avec retours d'état */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
+      gap: 0.55rem;
       width: 100%;
-      padding: 0.85rem 1.25rem;
+      padding: 0.9rem 1.25rem;
       border: none;
       border-radius: 10px;
       font-family: "Plus Jakarta Sans", sans-serif;
       font-size: 0.96rem;
       font-weight: 700;
       cursor: pointer;
+      transition: transform 0.1s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active:not(:disabled) {
+      transform: scale(0.97);
     }
     .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+      cursor: wait;
     }
     .btn-primary {
       background: linear-gradient(135deg, var(--teal) 0%, var(--blue) 100%);
       color: var(--white);
+      box-shadow: 0 4px 12px rgba(27, 86, 168, 0.2);
     }
     .btn-secondary {
       background: var(--blue-soft);
       color: var(--blue);
+      border: 1.5px solid #bfdbfe;
+    }
+    .btn-sending {
+      background: #f59e0b !important;
+      color: #ffffff !important;
+      border-color: #d97706 !important;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+    }
+    .btn-success {
+      background: #059669 !important;
+      color: #ffffff !important;
+      border-color: #047857 !important;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35) !important;
+    }
+    .btn-error {
+      background: #dc2626 !important;
+      color: #ffffff !important;
+      border-color: #b91c1c !important;
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35) !important;
+      animation: shake 0.32s ease-in-out;
     }
     .btn-danger-sm {
       width: auto;
@@ -233,6 +267,26 @@
       border-radius: 8px;
     }
 
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2.5px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    /* Alertes contrôlées uniquement par classes */
     .alert {
       padding: 0.85rem 1rem;
       border-radius: 10px;
@@ -242,10 +296,10 @@
       display: none;
       word-break: break-word;
     }
-    .alert-success { background: var(--teal-soft); color: var(--teal-dark); display: block; }
-    .alert-error { background: var(--danger-soft); color: var(--danger); display: block; }
-    .alert-info { background: var(--blue-soft); color: var(--blue); display: block; }
-    .alert-warn { background: var(--warn-soft); color: var(--warn); display: block; }
+    .alert.alert-success { background: var(--teal-soft); color: var(--teal-dark); display: block; }
+    .alert.alert-error { background: var(--danger-soft); color: var(--danger); display: block; }
+    .alert.alert-info { background: var(--blue-soft); color: var(--blue); display: block; }
+    .alert.alert-warn { background: var(--warn-soft); color: var(--warn); display: block; }
 
     .existing-list {
       display: flex;
@@ -293,14 +347,14 @@
   <header class="topbar">
     <div class="topbar-brand">
       <img src="assets/logo.png" alt="Joclean">
-      <div>Jo<span>Clean</span> Admin</div>
+      <div>Jo<span class="accent">Clean</span> Admin <span class="version-tag">v3</span></div>
     </div>
     <a href="./" class="site-link">Voir le site ↗</a>
   </header>
 
   <main class="wrap">
 
-    <!-- Bloc 1 : Connexion GitHub (mémorisée sur le téléphone) -->
+    <!-- Bloc 1 : Connexion GitHub -->
     <section class="card">
       <div class="card-header">
         <h2>1. Connexion à GitHub</h2>
@@ -339,7 +393,7 @@
         <h2>2. Ajouter une photo de chantier</h2>
       </div>
 
-      <form id="upload-form">
+      <form id="upload-form" novalidate>
         <div class="form-group">
           <label for="photo-input">Photo du chantier *</label>
           <div class="dropzone" id="dropzone">
@@ -347,7 +401,7 @@
             <strong>Toucher pour choisir une photo</strong>
             <span>Appareil photo ou galerie • Compression automatique</span>
           </div>
-          <input type="file" id="photo-input" accept="image/*" hidden required>
+          <input type="file" id="photo-input" accept="image/*" hidden>
 
           <div class="preview-box" id="preview-box">
             <img id="preview-img" src="" alt="Aperçu">
@@ -417,6 +471,35 @@
     let memoryToken = "";
     let storagePersistent = true;
 
+    // Gestion visuelle directe des boutons
+    function setButtonState(btn, state, labelHtml, resetAfterMs = 0, defaultText = "") {
+      btn.classList.remove("btn-sending", "btn-success", "btn-error");
+      if (state === "sending") {
+        btn.disabled = true;
+        btn.classList.add("btn-sending");
+        btn.innerHTML = `<span class="spinner"></span><span>${labelHtml}</span>`;
+      } else if (state === "success") {
+        btn.disabled = false;
+        btn.classList.add("btn-success");
+        btn.textContent = labelHtml;
+      } else if (state === "error") {
+        btn.disabled = false;
+        btn.classList.add("btn-error");
+        btn.textContent = labelHtml;
+      } else {
+        btn.disabled = false;
+        btn.textContent = labelHtml || defaultText;
+      }
+
+      if (resetAfterMs > 0 && defaultText) {
+        setTimeout(() => {
+          btn.classList.remove("btn-sending", "btn-success", "btn-error");
+          btn.disabled = false;
+          btn.textContent = defaultText;
+        }, resetAfterMs);
+      }
+    }
+
     // Nettoyage des espaces et caractères invisibles lors du copier-coller mobile
     function cleanToken(raw) {
       return (raw || "").replace(/[\s\u200B-\u200D\uFEFF]/g, "");
@@ -479,12 +562,11 @@
     }
 
     function hideAlert(el) {
-      el.style.display = "none";
       el.className = "alert";
       el.textContent = "";
     }
 
-    // Requête API GitHub sans slash final superflus ni Content-Type sur les lectures
+    // Requête API GitHub avec timeout de 15 secondes
     async function githubRequest(path = "", options = {}) {
       const token = getToken();
       if (!token) throw new Error("Clé GitHub manquante.");
@@ -502,15 +584,32 @@
         headers["Content-Type"] = "application/json";
       }
 
-      const res = await fetch(url, {
-        ...options,
-        headers
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      let res;
+      try {
+        res = await fetch(url, {
+          ...options,
+          headers,
+          signal: controller.signal
+        });
+      } catch (netErr) {
+        if (netErr.name === "AbortError") {
+          throw new Error("Délai dépassé (15s) : GitHub n'a pas répondu. Vérifiez votre connexion internet.");
+        }
+        throw new Error(`Requête bloquée ou réseau indisponible (${netErr.message}).`);
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         if (res.status === 401) {
-          throw new Error("Clé refusée par GitHub (401 Bad credentials). Vérifiez que vous avez collé la clé commençant par ghp_ et non votre mot de passe.");
+          throw new Error("Clé refusée par GitHub (401 Bad credentials). Collez bien le jeton commençant par ghp_ et non votre mot de passe.");
+        }
+        if (res.status === 403 || res.status === 404) {
+          throw new Error(`Accès refusé au dépôt (code ${res.status}). Vérifiez que la case « repo » est bien cochée sur votre token.`);
         }
         throw new Error(errData.message ? `${errData.message} (code ${res.status})` : `Erreur GitHub (${res.status})`);
       }
@@ -548,101 +647,4 @@
             ctx.drawImage(img, 0, 0, width, height);
 
             const dataUrl = canvas.toDataURL("image/jpeg", 0.84);
-            const base64Data = dataUrl.split(",")[1];
-            const sizeKb = Math.round((base64Data.length * 3) / 4 / 1024);
-            resolve({ dataUrl, base64Data, sizeKb, width, height });
-          };
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Lecture de js/chantiers.js
-    async function fetchChantiersFile() {
-      try {
-        const data = await githubRequest(`contents/js/chantiers.js?ref=${BRANCH}&t=${Date.now()}`);
-        const rawText = base64ToUtf8(data.content);
-        let list = [];
-        try {
-          const fn = new Function(`${rawText}; return typeof CHANTIERS !== "undefined" ? CHANTIERS : [];`);
-          const parsed = fn();
-          if (Array.isArray(parsed)) list = parsed;
-        } catch (_e) {
-          list = [];
-        }
-        return { sha: data.sha, list };
-      } catch (err) {
-        if (err.message.includes("404")) {
-          return { sha: null, list: [] };
-        }
-        throw err;
-      }
-    }
-
-    function buildChantiersJs(list) {
-      return `/**
- * LISTE DES RÉALISATIONS JOCLEAN (Gérée automatiquement via admin.html)
- */
-const CHANTIERS = ${JSON.stringify(list, null, 2)};
-`;
-    }
-
-    // Gestion de la connexion et de l'affichage
-    const authBadge = document.getElementById("auth-badge");
-    const tokenSetup = document.getElementById("token-setup");
-    const tokenConnected = document.getElementById("token-connected");
-    const authAlert = document.getElementById("auth-alert");
-    const saveTokenBtn = document.getElementById("save-token-btn");
-    const tokenInput = document.getElementById("gh-token");
-
-    async function checkAuthAndLoad(showSuccessMessage = false) {
-      const token = getToken();
-      if (!token) {
-        authBadge.textContent = "Non connecté";
-        authBadge.className = "status-badge status-off";
-        tokenSetup.hidden = false;
-        tokenConnected.hidden = true;
-        return;
-      }
-
-      authBadge.textContent = "Vérification...";
-      authBadge.className = "status-badge status-wait";
-      saveTokenBtn.disabled = true;
-      saveTokenBtn.textContent = "Vérification en cours...";
-
-      try {
-        const repoData = await githubRequest("");
-
-        if (repoData && repoData.permissions && repoData.permissions.push === false) {
-          throw new Error("Cette clé est en lecture seule. Cochez bien la case « repo » sur GitHub.");
-        }
-
-        authBadge.textContent = "Connecté";
-        authBadge.className = "status-badge status-ok";
-        tokenSetup.hidden = true;
-        tokenConnected.hidden = false;
-
-        if (showSuccessMessage) {
-          if (storagePersistent) {
-            showAlert(authAlert, "success", "Connexion réussie ! Clé mémorisée sur ce téléphone.");
-          } else {
-            showAlert(authAlert, "warn", "Connecté pour cette session (en navigation privée, Chrome effacera la clé à la fermeture).");
-          }
-        }
-
-        await renderExistingList();
-      } catch (err) {
-        authBadge.textContent = "Erreur";
-        authBadge.className = "status-badge status-off";
-        tokenSetup.hidden = false;
-        tokenConnected.hidden = true;
-        tokenInput.value = token;
-        showAlert(authAlert, "error", err.message);
-      } finally {
-        saveTokenBtn.disabled = false;
-        saveTokenBtn.textContent = "Connecter et mémoriser sur ce téléphone";
-      }
-    }
-
-    saveTokenBtn.addEventListener("click", async () => {
+            const base64Data = dataUrl.split(",")
