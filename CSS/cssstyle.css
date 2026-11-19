@@ -1,0 +1,644 @@
+/* ==========================================================================
+   Variables et réinitialisation
+   ========================================================================== */
+:root {
+  --color-primary: #0284c7;
+  --color-primary-dark: #0369a1;
+  --color-primary-light: #e0f2fe;
+  --color-dark: #0f172a;
+  --color-text: #334155;
+  --color-text-muted: #64748b;
+  --color-bg: #ffffff;
+  --color-bg-alt: #f8fafc;
+  --color-border: #e2e8f0;
+  --color-success: #15803d;
+  --color-error: #b91c1c;
+  --radius: 10px;
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+  --container-width: 1120px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.6;
+}
+
+h1, h2, h3 {
+  color: var(--color-dark);
+  line-height: 1.25;
+  margin-top: 0;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* ==========================================================================
+   Boutons
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.35rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  text-decoration: none;
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
+.btn-sm {
+  padding: 0.45rem 0.95rem;
+  font-size: 0.875rem;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-outline:hover {
+  background-color: var(--color-primary-light);
+}
+
+/* ==========================================================================
+   En-tête et Navigation
+   ========================================================================== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-dark);
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.brand-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.main-nav ul {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.main-nav a:not(.btn) {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.main-nav a:not(.btn):hover {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-dark);
+}
+
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+.hero {
+  padding: 4rem 0;
+  background: linear-gradient(180deg, var(--color-primary-light) 0%, #ffffff 100%);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  background-color: #ffffff;
+  color: var(--color-primary-dark);
+  border: 1px solid #bae6fd;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.hero h1 {
+  font-size: clamp(1.85rem, 3.5vw, 2.75rem);
+  margin-bottom: 1rem;
+}
+
+.hero-lead {
+  font-size: 1.1rem;
+  margin-bottom: 1.75rem;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-bottom: 1.75rem;
+}
+
+.hero-highlights {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--color-dark);
+}
+
+.hero-card {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-md);
+}
+
+.hero-card h2 {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.quick-info {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.quick-info-item {
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-info-item .label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   Sections génériques & Cartes
+   ========================================================================== */
+.section {
+  padding: 4rem 0;
+}
+
+.section-alt {
+  background-color: var(--color-bg-alt);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.section-header {
+  text-align: center;
+  max-width: 650px;
+  margin: 0 auto 2.75rem;
+}
+
+.section-header h2 {
+  font-size: clamp(1.5rem, 2.5vw, 2.1rem);
+  margin-bottom: 0.6rem;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.6rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.card h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   Engagements & Zone d'intervention
+   ========================================================================== */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.75rem;
+}
+
+.feature-item {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  border-left: 4px solid var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.feature-item h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.45rem;
+}
+
+.feature-item p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.zone-box {
+  background-color: var(--color-dark);
+  color: #f1f5f9;
+  border-radius: var(--radius);
+  padding: 2.5rem;
+}
+
+.zone-box h2 {
+  color: #ffffff;
+}
+
+.communes-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.communes-list li {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.zone-note {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+/* ==========================================================================
+   Contact et Formulaire
+   ========================================================================== */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.contact-methods {
+  margin-top: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.contact-method {
+  background-color: #ffffff;
+  padding: 1.1rem 1.25rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+}
+
+.method-label {
+  display: block;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.method-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-dark);
+}
+
+.email-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.copy-feedback {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-success);
+  margin-top: 0.35rem;
+}
+
+.contact-form {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1.1rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.35rem;
+  color: var(--color-dark);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: var(--color-dark);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: 2px solid var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.error-msg {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--color-error);
+  margin-top: 0.25rem;
+  min-height: 1.1em;
+}
+
+.form-hint {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+.form-status {
+  margin-top: 0.85rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+/* ==========================================================================
+   Pied de page & Modale Mentions légales
+   ========================================================================== */
+.site-footer {
+  background-color: var(--color-dark);
+  color: #cbd5e1;
+  padding: 1.75rem 0;
+  font-size: 0.9rem;
+}
+
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #38bdf8;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+.legal-dialog {
+  border: none;
+  border-radius: var(--radius);
+  padding: 0;
+  max-width: 560px;
+  width: calc(100% - 2rem);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.legal-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.legal-content {
+  padding: 1.75rem;
+}
+
+.legal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.legal-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.close-dialog {
+  background: none;
+  border: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+
+/* ==========================================================================
+   Responsive Mobile
+   ========================================================================== */
+@media (max-width: 820px) {
+  .hero-grid,
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+  .main-nav {
+    display: none;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--color-border);
+    padding: 1.25rem;
+  }
+
+  .main-nav.is-open {
+    display: block;
+  }
+
+  .main-nav ul {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
