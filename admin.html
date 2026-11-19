@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Joclean Admin — Publier des photos</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --teal: #00a896;
+      --teal-dark: #008577;
+      --teal-soft: #e6f7f5;
+      --blue: #1b56a8;
+      --blue-soft: #eef4fc;
+      --ink-900: #0f172a;
+      --ink-700: #334155;
+      --ink-500: #64748b;
+      --bg: #f8fafc;
+      --white: #ffffff;
+      --border: #e2e8f0;
+      --danger: #dc2626;
+      --danger-soft: #fef2f2;
+      --warn: #d97706;
+      --warn-soft: #fffbeb;
+      --radius: 14px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", sans-serif;
+      background-color: var(--bg);
+      color: var(--ink-700);
+      line-height: 1.5;
+      padding-bottom: 3rem;
+    }
+    h1, h2, h3 {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      color: var(--ink-900);
+      margin-top: 0;
+    }
+
+    .topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-weight: 800;
+      color: var(--blue);
+      font-size: 1.12rem;
+    }
+    .topbar-brand img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      object-fit: contain;
+      border: 1px solid var(--border);
+    }
+    .topbar-brand span.accent { color: var(--teal); }
+    .version-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: var(--blue-soft);
+      color: var(--blue);
+      padding: 0.15rem 0.45rem;
+      border-radius: 6px;
+    }
+    .site-link {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--blue);
+      text-decoration: none;
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      background: var(--blue-soft);
+    }
+
+    .wrap {
+      max-width: 640px;
+      margin: 1.5rem auto;
+      padding: 0 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .card-header h2 {
+      font-size: 1.12rem;
+      margin: 0;
+    }
+
+    .status-badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .status-ok { background: var(--teal-soft); color: var(--teal-dark); }
+    .status-off { background: var(--danger-soft); color: var(--danger); }
+    .status-wait { background: var(--warn-soft); color: var(--warn); }
+
+    .form-group { margin-bottom: 1rem; }
+    label {
+      display: block;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--ink-900);
+      margin-bottom: 0.35rem;
+    }
+    .hint {
+      font-size: 0.8rem;
+      color: var(--ink-500);
+      margin-top: 0.35rem;
+    }
+
+    input[type="text"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.75rem 0.9rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: var(--bg);
+      color: var(--ink-900);
+    }
+    .token-input {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+      font-size: 0.88rem !important;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--teal);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.15);
+    }
+
+    .dropzone {
+      border: 2px dashed #94a3b8;
+      border-radius: 12px;
+      padding: 1.75rem 1rem;
+      text-align: center;
+      background: var(--bg);
+      cursor: pointer;
+      transition: border-color 0.15s ease, background 0.15s ease;
+    }
+    .dropzone:hover {
+      border-color: var(--teal);
+      background: var(--teal-soft);
+    }
+    .dropzone-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+    .dropzone strong { color: var(--blue); display: block; }
+    .dropzone span { font-size: 0.82rem; color: var(--ink-500); }
+
+    .preview-box {
+      margin-top: 1rem;
+      display: none;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .preview-box img {
+      width: 100%;
+      max-height: 280px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .compression-info {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--teal-dark);
+      background: var(--teal-soft);
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+    }
+
+    /* Boutons interactifs avec retours d'état */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      width: 100%;
+      padding: 0.9rem 1.25rem;
+      border: none;
+      border-radius: 10px;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 0.96rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+    .btn:disabled {
+      cursor: wait;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--teal) 0%, var(--blue) 100%);
+      color: var(--white);
+      box-shadow: 0 4px 12px rgba(27, 86, 168, 0.2);
+    }
+    .btn-secondary {
+      background: var(--blue-soft);
+      color: var(--blue);
+      border: 1.5px solid #bfdbfe;
+    }
+    .btn-sending {
+      background: #f59e0b !important;
+      color: #ffffff !important;
+      border-color: #d97706 !important;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35) !important;
+    }
+    .btn-success {
+      background: #059669 !important;
+      color: #ffffff !important;
+      border-color: #047857 !important;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35) !important;
+    }
+    .btn-error {
+      background: #dc2626 !important;
+      color: #ffffff !important;
+      border-color: #b91c1c !important;
+      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35) !important;
+      animation: shake 0.32s ease-in-out;
+    }
+    .btn-danger-sm {
+      width: auto;
+      padding: 0.45rem 0.8rem;
+      font-size: 0.82rem;
+      background: var(--danger-soft);
+      color: var(--danger);
+      border-radius: 8px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2.5px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    /* Alertes contrôlées uniquement par classes */
+    .alert {
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-top: 0.85rem;
+      display: none;
+      word-break: break-word;
+    }
+    .alert.alert-success { background: var(--teal-soft); color: var(--teal-dark); display: block; }
+    .alert.alert-error { background: var(--danger-soft); color: var(--danger); display: block; }
+    .alert.alert-info { background: var(--blue-soft); color: var(--blue); display: block; }
+    .alert.alert-warn { background: var(--warn-soft); color: var(--warn); display: block; }
+
+    .existing-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .existing-item {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.65rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+    }
+    .existing-item img {
+      width: 64px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #cbd5e1;
+      flex-shrink: 0;
+    }
+    .existing-meta {
+      flex-grow: 1;
+      min-width: 0;
+    }
+    .existing-meta strong {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--ink-900);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .existing-meta span {
+      font-size: 0.78rem;
+      color: var(--ink-500);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-brand">
+      <img src="assets/logo.png" alt="Joclean">
+      <div>Jo<span class="accent">Clean</span> Admin <span class="version-tag">v3</span></div>
+    </div>
+    <a href="./" class="site-link">Voir le site ↗</a>
+  </header>
+
+  <main class="wrap">
+
+    <!-- Bloc 1 : Connexion GitHub -->
+    <section class="card">
+      <div class="card-header">
+        <h2>1. Connexion à GitHub</h2>
+        <span class="status-badge status-off" id="auth-badge">Non connecté</span>
+      </div>
+
+      <div id="token-setup">
+        <div class="form-group">
+          <label for="gh-token">Clé d'accès GitHub (Token ghp_...)</label>
+          <input
+            type="text"
+            id="gh-token"
+            class="token-input"
+            placeholder="Collez ici votre clé ghp_..."
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+          >
+          <p class="hint">Mémorisée uniquement sur ce téléphone. Utilisez un onglet Chrome normal (pas en navigation privée).</p>
+        </div>
+        <button type="button" class="btn btn-secondary" id="save-token-btn">Connecter et mémoriser sur ce téléphone</button>
+      </div>
+
+      <div id="token-connected" hidden>
+        <p class="hint" style="margin: 0 0 0.75rem;">Connecté au dépôt <strong>jordan64-labs/Joclean</strong>.</p>
+        <button type="button" class="btn btn-danger-sm" id="logout-btn">Déconnecter / Changer de clé</button>
+      </div>
+
+      <div class="alert" id="auth-alert" role="status"></div>
+    </section>
+
+    <!-- Bloc 2 : Publication d'une photo -->
+    <section class="card">
+      <div class="card-header">
+        <h2>2. Ajouter une photo de chantier</h2>
+      </div>
+
+      <form id="upload-form" novalidate>
+        <div class="form-group">
+          <label for="photo-input">Photo du chantier *</label>
+          <div class="dropzone" id="dropzone">
+            <div class="dropzone-icon">📸</div>
+            <strong>Toucher pour choisir une photo</strong>
+            <span>Appareil photo ou galerie • Compression automatique</span>
+          </div>
+          <input type="file" id="photo-input" accept="image/*" hidden>
+
+          <div class="preview-box" id="preview-box">
+            <img id="preview-img" src="" alt="Aperçu">
+            <div class="compression-info" id="compression-info"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="categorie">Catégorie (facultatif)</label>
+          <select id="categorie">
+            <option value="vitres">Nettoyage de vitres</option>
+            <option value="residences">Entretien de résidence</option>
+            <option value="locaux">Locaux professionnels</option>
+            <option value="pression">Nettoyage haute pression</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="commune">Commune (facultatif)</label>
+          <input type="text" id="commune" placeholder="Ex. : Auterive, Labège, Saint-Léon...">
+        </div>
+
+        <div class="form-group">
+          <label for="titre">Titre court (facultatif)</label>
+          <input type="text" id="titre" placeholder="Laisser vide pour un titre automatique">
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description (facultatif)</label>
+          <textarea id="description" rows="2" placeholder="Ex. : Vitres intérieures et extérieures sans traces."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="publish-btn">Publier sur le site</button>
+        <div class="alert" id="publish-alert" role="status"></div>
+      </form>
+    </section>
+
+    <!-- Bloc 3 : Gestion des photos déjà en ligne -->
+    <section class="card">
+      <div class="card-header">
+        <h2>3. Photos en ligne</h2>
+        <button type="button" class="btn btn-danger-sm" style="background:#eef4fc;color:#1b56a8;" id="refresh-list-btn">Actualiser</button>
+      </div>
+      <p class="hint" style="margin-top:0;">Supprimez une photo si vous souhaitez la retirer de la galerie publique.</p>
+      <div class="existing-list" id="existing-list">
+        <p class="hint">Connectez votre clé GitHub ci-dessus pour afficher vos photos publiées.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const REPO_OWNER = "jordan64-labs";
+    const REPO_NAME = "Joclean";
+    const BRANCH = "main";
+    const STORAGE_KEY = "joclean_gh_token";
+
+    const DEFAULT_TITLES = {
+      vitres: "Nettoyage de vitres",
+      residences: "Entretien de résidence",
+      locaux: "Nettoyage de locaux professionnels",
+      pression: "Nettoyage haute pression"
+    };
+
+    let compressedBase64 = null;
+    let compressedFileName = null;
+    let memoryToken = "";
+    let storagePersistent = true;
+
+    // Gestion visuelle directe des boutons
+    function setButtonState(btn, state, labelHtml, resetAfterMs = 0, defaultText = "") {
+      btn.classList.remove("btn-sending", "btn-success", "btn-error");
+      if (state === "sending") {
+        btn.disabled = true;
+        btn.classList.add("btn-sending");
+        btn.innerHTML = `<span class="spinner"></span><span>${labelHtml}</span>`;
+      } else if (state === "success") {
+        btn.disabled = false;
+        btn.classList.add("btn-success");
+        btn.textContent = labelHtml;
+      } else if (state === "error") {
+        btn.disabled = false;
+        btn.classList.add("btn-error");
+        btn.textContent = labelHtml;
+      } else {
+        btn.disabled = false;
+        btn.textContent = labelHtml || defaultText;
+      }
+
+      if (resetAfterMs > 0 && defaultText) {
+        setTimeout(() => {
+          btn.classList.remove("btn-sending", "btn-success", "btn-error");
+          btn.disabled = false;
+          btn.textContent = defaultText;
+        }, resetAfterMs);
+      }
+    }
+
+    // Nettoyage des espaces et caractères invisibles lors du copier-coller mobile
+    function cleanToken(raw) {
+      return (raw || "").replace(/[\s\u200B-\u200D\uFEFF]/g, "");
+    }
+
+    function getToken() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          memoryToken = cleanToken(stored);
+          return memoryToken;
+        }
+      } catch (_e) {
+        storagePersistent = false;
+      }
+      return memoryToken;
+    }
+
+    function saveToken(raw) {
+      const cleaned = cleanToken(raw);
+      memoryToken = cleaned;
+      try {
+        localStorage.setItem(STORAGE_KEY, cleaned);
+        storagePersistent = localStorage.getItem(STORAGE_KEY) === cleaned;
+      } catch (_e) {
+        storagePersistent = false;
+      }
+      return cleaned;
+    }
+
+    function clearToken() {
+      memoryToken = "";
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (_e) {}
+    }
+
+    // Encodage UTF-8 <-> Base64 sans perte d'accents
+    function utf8ToBase64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
+    function base64ToUtf8(b64) {
+      const binary = atob(b64.replace(/\s/g, ""));
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return new TextDecoder().decode(bytes);
+    }
+
+    function showAlert(el, type, msg) {
+      el.className = `alert alert-${type}`;
+      el.textContent = msg;
+    }
+
+    function hideAlert(el) {
+      el.className = "alert";
+      el.textContent = "";
+    }
+
+    // Requête API GitHub avec timeout de 15 secondes
+    async function githubRequest(path = "", options = {}) {
+      const token = getToken();
+      if (!token) throw new Error("Clé GitHub manquante.");
+
+      const cleanPath = path ? `/${path.replace(/^\/+/, "")}` : "";
+      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}${cleanPath}`;
+
+      const headers = {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        ...(options.headers || {})
+      };
+
+      if (options.body) {
+        headers["Content-Type"] = "application/json";
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      let res;
+      try {
+        res = await fetch(url, {
+          ...options,
+          headers,
+          signal: controller.signal
+        });
+      } catch (netErr) {
+        if (netErr.name === "AbortError") {
+          throw new Error("Délai dépassé (15s) : GitHub n'a pas répondu. Vérifiez votre connexion internet.");
+        }
+        throw new Error(`Requête bloquée ou réseau indisponible (${netErr.message}).`);
+      } finally {
+        clearTimeout(timeoutId);
+      }
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        if (res.status === 401) {
+          throw new Error("Clé refusée par GitHub (401 Bad credentials). Collez bien le jeton commençant par ghp_ et non votre mot de passe.");
+        }
+        if (res.status === 403 || res.status === 404) {
+          throw new Error(`Accès refusé au dépôt (code ${res.status}). Vérifiez que la case « repo » est bien cochée sur votre token.`);
+        }
+        throw new Error(errData.message ? `${errData.message} (code ${res.status})` : `Erreur GitHub (${res.status})`);
+      }
+
+      return res.status === 204 ? null : res.json();
+    }
+
+    // Compression d'image côté navigateur (max 1400px, JPEG 84%)
+    function compressImage(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error("Impossible de lire l'image."));
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onerror = () => reject(new Error("Format d'image non reconnu."));
+          img.onload = () => {
+            const MAX_SIZE = 1400;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > MAX_SIZE || height > MAX_SIZE) {
+              if (width > height) {
+                height = Math.round((height * MAX_SIZE) / width);
+                width = MAX_SIZE;
+              } else {
+                width = Math.round((width * MAX_SIZE) / height);
+                height = MAX_SIZE;
+              }
+            }
+
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.84);
+            const base64Data = dataUrl.split(",")[1];
+            const sizeKb = Math.round((base64Data.length * 3) / 4 / 1024);
+            resolve({ dataUrl, base64Data, sizeKb, width, height });
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Lecture de js/chantiers.js
+    async function fetchChantiersFile() {
+      try {
+        const data = await githubRequest(`contents/js/chantiers.js?ref=${BRANCH}&t=${Date.now()}`);
+        const rawText = base64ToUtf8(data.content);
+        let list = [];
+        try {
+          const fn = new Function(`${rawText}; return typeof CHANTIERS !== "undefined" ? CHANTIERS : [];`);
+          const parsed = fn();
+          if (Array.isArray(parsed)) list = parsed;
+        } catch (_e) {
+          list = [];
+        }
+        return { sha: data.sha, list };
+      } catch (err) {
+        if (err.message.includes("404")) {
+          return { sha: null, list: [] };
+        }
+        throw err;
+      }
+    }
+
+    function buildChantiersJs(list) {
+      return `/**
+ * LISTE DES RÉALISATIONS JOCLEAN (Gérée automatiquement via admin.html)
+ */
+const CHANTIERS = ${JSON.stringify(list, null, 2)};
+`;
+    }
+
+    // Gestion de la connexion et de l'affichage
+    const authBadge = document.getElementById("auth-badge");
+    const tokenSetup = document.getElementById("token-setup");
+    const tokenConnected = document.getElementById("token-connected");
+    const authAlert = document.getElementById("auth-alert");
+    const saveTokenBtn = document.getElementById("save-token-btn");
+    const tokenInput = document.getElementById("gh-token");
+    const DEFAULT_SAVE_LABEL = "Connecter et mémoriser sur ce téléphone";
+
+    async function checkAuthAndLoad(fromUserClick = false) {
+      const token = getToken();
+      if (!token) {
+        authBadge.textContent = "Non connecté";
+        authBadge.className = "status-badge status-off";
+        tokenSetup.hidden = false;
+        tokenConnected.hidden = true;
+        return;
+      }
+
+      authBadge.textContent = "Envoi...";
+      authBadge.className = "status-badge status-wait";
+      setButtonState(saveTokenBtn, "sending", "Requête envoyée à GitHub...");
+
+      try {
+        const repoData = await githubRequest("");
+
+        if (repoData && repoData.permissions && repoData.permissions.push === false) {
+          throw new Error("Cette clé est en lecture seule. Cochez bien la case « repo » sur GitHub.");
+        }
+
+        setButtonState(saveTokenBtn, "success", "✅ Requête acceptée — Connecté", 2000, DEFAULT_SAVE_LABEL);
+        authBadge.textContent = "Connecté";
+        authBadge.className = "status-badge status-ok";
+        tokenSetup.hidden = true;
+        tokenConnected.hidden = false;
+
+        if (fromUserClick) {
+          if (storagePersistent) {
+            showAlert(authAlert, "success", "✅ Requête acceptée par GitHub : clé enregistrée sur ce téléphone.");
+          } else {
+            showAlert(authAlert, "warn", "✅ Connecté pour cette session (attention : en navigation privée, Chrome effacera la clé à la fermeture).");
+          }
+        }
+
+        await renderExistingList();
+      } catch (err) {
+        setButtonState(saveTokenBtn, "error", "❌ Échec de la requête", 3000, DEFAULT_SAVE_LABEL);
+        authBadge.textContent = "Échec";
+        authBadge.className = "status-badge status-off";
+        tokenSetup.hidden = false;
+        tokenConnected.hidden = true;
+        tokenInput.value = token;
+        showAlert(authAlert, "error", err.message);
+      }
+    }
+
+    saveTokenBtn.addEventListener("click", async () => {
+      const val = cleanToken(tokenInput.value);
+      if (!val) {
+        setButtonState(saveTokenBtn, "error", "⚠️ Saisissez la clé — requête non envoyée", 2500, DEFAULT_SAVE_LABEL);
+        showAlert(authAlert, "error", "Aucune requête envoyée : collez d'abord votre clé GitHub (ghp_...) dans le champ ci-dessus.");
+        tokenInput.focus();
+        return;
+      }
+      hideAlert(authAlert);
+      saveToken(val);
+      await checkAuthAndLoad(true);
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      clearToken();
+      tokenInput.value = "";
+      hideAlert(authAlert);
+      setButtonState(saveTokenBtn, "default", DEFAULT_SAVE_LABEL);
+      document.getElementById("existing-list").innerHTML = `<p class="hint">Déconnecté.</p>`;
+      checkAuthAndLoad(false);
+    });
+
+    // Sélection et prévisualisation de la photo
+    const dropzone = document.getElementById("dropzone");
+    const photoInput = document.getElementById("photo-input");
+    const previewBox = document.getElementById("preview-box");
+    const previewImg = document.getElementById("preview-img");
+    const compressionInfo = document.getElementById("compression-info");
+
+    dropzone.addEventListener("click", () => photoInput.click());
+
+    photoInput.addEventListener("change", async () => {
+      const file = photoInput.files && photoInput.files[0];
+      if (!file) return;
+
+      try {
+        const origKb = Math.round(file.size / 1024);
+        const result = await compressImage(file);
+        compressedBase64 = result.base64Data;
+
+        const now = new Date();
+        const stamp = now.toISOString().replace(/[-:T]/g, "").slice(0, 14);
+        compressedFileName = `chantier-${stamp}.jpg`;
+
+        previewImg.src = result.dataUrl;
+        compressionInfo.textContent = `Prête : ${result.width}×${result.height} px • ${result.sizeKb} Ko (au lieu de ${origKb} Ko)`;
+        previewBox.style.display = "flex";
+        hideAlert(document.getElementById("publish-alert"));
+      } catch (err) {
+        showAlert(document.getElementById("publish-alert"), "error", err.message);
+      }
+    });
+
+    // Publication sur GitHub
+    const uploadForm = document.getElementById("upload-form");
+    const publishBtn = document.getElementById("publish-btn");
+    const publishAlert = document.getElementById("publish-alert");
+    const DEFAULT_PUBLISH_LABEL = "Publier sur le site";
+
+    uploadForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      if (!getToken()) {
+        setButtonState(publishBtn, "error", "⚠️ Non connecté — requête non envoyée", 2500, DEFAULT_PUBLISH_LABEL);
+        showAlert(publishAlert, "error", "Aucune requête envoyée : connectez d'abord votre clé GitHub en haut de la page.");
+        return;
+      }
+      if (!compressedBase64 || !compressedFileName) {
+        setButtonState(publishBtn, "error", "⚠️ Aucune photo — requête non envoyée", 2500, DEFAULT_PUBLISH_LABEL);
+        showAlert(publishAlert, "error", "Aucune requête envoyée : choisissez d'abord une photo ci-dessus.");
+        return;
+      }
+
+      const categorie = document.getElementById("categorie").value;
+      const commune = document.getElementById("commune").value.trim() || "Haute-Garonne (31)";
+      const titre = document.getElementById("titre").value.trim() || DEFAULT_TITLES[categorie] || "Réalisation Joclean";
+      const description = document.getElementById("description").value.trim() || "Intervention réalisée avec soin par Joclean.";
+
+      setButtonState(publishBtn, "sending", "Requête envoyée à GitHub (1/2)...");
+      showAlert(publishAlert, "info", "Envoi de la photo compressée vers GitHub...");
+
+      try {
+        // 1. Téléverser l'image compressée dans assets/chantiers/
+        await githubRequest(`contents/assets/chantiers/${compressedFileName}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            message: `Ajout photo chantier ${compressedFileName}`,
+            content: compressedBase64,
+            branch: BRANCH
+          })
+        });
+
+        // 2. Récupérer js/chantiers.js et ajouter la nouvelle entrée en tête
+        setButtonState(publishBtn, "sending", "Mise à jour de la galerie (2/2)...");
+        const { sha, list } = await fetchChantiersFile();
+        list.unshift({
+          fichier: compressedFileName,
+          titre,
+          lieu: commune,
+          categorie,
+          description
+        });
+
+        // 3. Mettre à jour js/chantiers.js
+        const putPayload = {
+          message: `Mise à jour galerie (${compressedFileName})`,
+          content: utf8ToBase64(buildChantiersJs(list)),
+          branch: BRANCH
+        };
+        if (sha) putPayload.sha = sha;
+
+        await githubRequest("contents/js/chantiers.js", {
+          method: "PUT",
+          body: JSON.stringify(putPayload)
+        });
+
+        setButtonState(publishBtn, "success", "✅ Photo publiée sur GitHub !", 3000, DEFAULT_PUBLISH_LABEL);
+        showAlert(publishAlert, "success", "✅ Requête acceptée ! La photo apparaîtra sur le site public dans environ 1 minute.");
+        uploadForm.reset();
+        previewBox.style.display = "none";
+        compressedBase64 = null;
+        compressedFileName = null;
+        await renderExistingList();
+      } catch (err) {
+        setButtonState(publishBtn, "error", "❌ Échec de l'envoi", 3500, DEFAULT_PUBLISH_LABEL);
+        showAlert(publishAlert, "error", `Erreur lors de la publication : ${err.message}`);
+      }
+    });
+
+    // Liste et suppression des photos existantes
+    async function renderExistingList() {
+      const container = document.getElementById("existing-list");
+      try {
+        const { list } = await fetchChantiersFile();
+        if (list.length === 0) {
+          container.innerHTML = `<p class="hint">Aucune photo publiée pour le moment.</p>`;
+          return;
+        }
+
+        container.innerHTML = "";
+        list.forEach((item, index) => {
+          const row = document.createElement("div");
+          row.className = "existing-item";
+          const rawFallback = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/assets/chantiers/${item.fichier}`;
+
+          row.innerHTML = `
+            <img src="assets/chantiers/${item.fichier}" onerror="this.onerror=null;this.src='${rawFallback}';" alt="${item.titre}">
+            <div class="existing-meta">
+              <strong>${item.titre}</strong>
+              <span>${item.lieu} • ${item.fichier}</span>
+            </div>
+            <button type="button" class="btn btn-danger-sm">Supprimer</button>
+          `;
+
+          row.querySelector("button").addEventListener("click", async (ev) => {
+            const delBtn = ev.currentTarget;
+            if (!confirm(`Supprimer définitivement "${item.titre}" ?`)) return;
+            delBtn.disabled = true;
+            delBtn.textContent = "Envoi...";
+            row.style.opacity = "0.6";
+
+            try {
+              try {
+                const imgMeta = await githubRequest(`contents/assets/chantiers/${item.fichier}?ref=${BRANCH}`);
+                await githubRequest(`contents/assets/chantiers/${item.fichier}`, {
+                  method: "DELETE",
+                  body: JSON.stringify({
+                    message: `Suppression photo ${item.fichier}`,
+                    sha: imgMeta.sha,
+                    branch: BRANCH
+                  })
+                });
+              } catch (_imgErr) {}
+
+              const { sha, list: currentList } = await fetchChantiersFile();
+              const updatedList = currentList.filter((_, idx) => idx !== index);
+              const delPayload = {
+                message: `Retrait galerie (${item.fichier})`,
+                content: utf8ToBase64(buildChantiersJs(updatedList)),
+                branch: BRANCH
+              };
+              if (sha) delPayload.sha = sha;
+
+              await githubRequest("contents/js/chantiers.js", {
+                method: "PUT",
+                body: JSON.stringify(delPayload)
+              });
+
+              await renderExistingList();
+            } catch (delErr) {
+              alert(`Impossible de supprimer : ${delErr.message}`);
+              delBtn.disabled = false;
+              delBtn.textContent = "Supprimer";
+              row.style.opacity = "1";
+            }
+          });
+
+          container.appendChild(row);
+        });
+      } catch (err) {
+        container.innerHTML = `<p class="hint">Erreur de chargement : ${err.message}</p>`;
+      }
+    }
+
+    document.getElementById("refresh-list-btn").addEventListener("click", renderExistingList);
+
+    // Vérification automatique au chargement de la page
+    checkAuthAndLoad(false);
+  </script>
+</body>
+</html>
