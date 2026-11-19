@@ -24,6 +24,8 @@
       --border: #e2e8f0;
       --danger: #dc2626;
       --danger-soft: #fef2f2;
+      --warn: #b45309;
+      --warn-soft: #fffbeb;
       --radius: 14px;
     }
 
@@ -114,9 +116,11 @@
       font-weight: 700;
       padding: 0.25rem 0.65rem;
       border-radius: 999px;
+      white-space: nowrap;
     }
     .status-ok { background: var(--teal-soft); color: var(--teal-dark); }
     .status-off { background: var(--danger-soft); color: var(--danger); }
+    .status-wait { background: var(--warn-soft); color: var(--warn); }
 
     .form-group { margin-bottom: 1rem; }
     label {
@@ -129,11 +133,10 @@
     .hint {
       font-size: 0.8rem;
       color: var(--ink-500);
-      margin-top: 0.3rem;
+      margin-top: 0.35rem;
     }
 
     input[type="text"],
-    input[type="password"],
     select,
     textarea {
       width: 100%;
@@ -144,6 +147,10 @@
       font-size: 0.95rem;
       background: var(--bg);
       color: var(--ink-900);
+    }
+    .token-input {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+      font-size: 0.88rem !important;
     }
     input:focus, select:focus, textarea:focus {
       outline: none;
@@ -206,7 +213,7 @@
       cursor: pointer;
     }
     .btn:disabled {
-      opacity: 0.55;
+      opacity: 0.6;
       cursor: not-allowed;
     }
     .btn-primary {
@@ -219,29 +226,26 @@
     }
     .btn-danger-sm {
       width: auto;
-      padding: 0.4rem 0.75rem;
-      font-size: 0.8rem;
+      padding: 0.45rem 0.8rem;
+      font-size: 0.82rem;
       background: var(--danger-soft);
       color: var(--danger);
       border-radius: 8px;
     }
 
-    .row-actions {
-      display: flex;
-      gap: 0.6rem;
-    }
-
     .alert {
       padding: 0.85rem 1rem;
       border-radius: 10px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 600;
       margin-top: 0.85rem;
       display: none;
+      word-break: break-word;
     }
     .alert-success { background: var(--teal-soft); color: var(--teal-dark); display: block; }
     .alert-error { background: var(--danger-soft); color: var(--danger); display: block; }
     .alert-info { background: var(--blue-soft); color: var(--blue); display: block; }
+    .alert-warn { background: var(--warn-soft); color: var(--warn); display: block; }
 
     .existing-list {
       display: flex;
@@ -296,7 +300,7 @@
 
   <main class="wrap">
 
-    <!-- Bloc 1 : Connexion GitHub (enregistrée sur le téléphone) -->
+    <!-- Bloc 1 : Connexion GitHub (mémorisée sur le téléphone) -->
     <section class="card">
       <div class="card-header">
         <h2>1. Connexion à GitHub</h2>
@@ -305,16 +309,25 @@
 
       <div id="token-setup">
         <div class="form-group">
-          <label for="gh-token">Clé d'accès GitHub (Token)</label>
-          <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-          <p class="hint">Stockée uniquement sur cet appareil. Nécessite l'autorisation <strong>repo</strong> (ou Contents: Read &amp; Write).</p>
+          <label for="gh-token">Clé d'accès GitHub (Token ghp_...)</label>
+          <input
+            type="text"
+            id="gh-token"
+            class="token-input"
+            placeholder="Collez ici votre clé ghp_..."
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+          >
+          <p class="hint">Mémorisée uniquement sur ce téléphone. Utilisez un onglet Chrome normal (pas en navigation privée).</p>
         </div>
         <button type="button" class="btn btn-secondary" id="save-token-btn">Connecter et mémoriser sur ce téléphone</button>
       </div>
 
       <div id="token-connected" hidden>
         <p class="hint" style="margin: 0 0 0.75rem;">Connecté au dépôt <strong>jordan64-labs/Joclean</strong>.</p>
-        <button type="button" class="btn btn-danger-sm" id="logout-btn">Déconnecter / Effacer la clé</button>
+        <button type="button" class="btn btn-danger-sm" id="logout-btn">Déconnecter / Changer de clé</button>
       </div>
 
       <div class="alert" id="auth-alert" role="status"></div>
@@ -401,6 +414,45 @@
 
     let compressedBase64 = null;
     let compressedFileName = null;
+    let memoryToken = "";
+    let storagePersistent = true;
+
+    // Nettoyage des espaces et caractères invisibles lors du copier-coller mobile
+    function cleanToken(raw) {
+      return (raw || "").replace(/[\s\u200B-\u200D\uFEFF]/g, "");
+    }
+
+    function getToken() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          memoryToken = cleanToken(stored);
+          return memoryToken;
+        }
+      } catch (_e) {
+        storagePersistent = false;
+      }
+      return memoryToken;
+    }
+
+    function saveToken(raw) {
+      const cleaned = cleanToken(raw);
+      memoryToken = cleaned;
+      try {
+        localStorage.setItem(STORAGE_KEY, cleaned);
+        storagePersistent = localStorage.getItem(STORAGE_KEY) === cleaned;
+      } catch (_e) {
+        storagePersistent = false;
+      }
+      return cleaned;
+    }
+
+    function clearToken() {
+      memoryToken = "";
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (_e) {}
+    }
 
     // Encodage UTF-8 <-> Base64 sans perte d'accents
     function utf8ToBase64(str) {
@@ -426,28 +478,43 @@
       el.textContent = msg;
     }
 
-    function getToken() {
-      return localStorage.getItem(STORAGE_KEY) || "";
+    function hideAlert(el) {
+      el.style.display = "none";
+      el.className = "alert";
+      el.textContent = "";
     }
 
-    async function githubRequest(path, options = {}) {
+    // Requête API GitHub sans slash final superflus ni Content-Type sur les lectures
+    async function githubRequest(path = "", options = {}) {
       const token = getToken();
-      if (!token) throw new Error("Clé GitHub manquante. Connectez-vous d'abord.");
+      if (!token) throw new Error("Clé GitHub manquante.");
 
-      const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/${path}`, {
+      const cleanPath = path ? `/${path.replace(/^\/+/, "")}` : "";
+      const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}${cleanPath}`;
+
+      const headers = {
+        "Authorization": `Bearer ${token}`,
+        "Accept": "application/vnd.github+json",
+        ...(options.headers || {})
+      };
+
+      if (options.body) {
+        headers["Content-Type"] = "application/json";
+      }
+
+      const res = await fetch(url, {
         ...options,
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Accept": "application/vnd.github+json",
-          "Content-Type": "application/json",
-          ...(options.headers || {})
-        }
+        headers
       });
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || `Erreur GitHub (${res.status})`);
+        if (res.status === 401) {
+          throw new Error("Clé refusée par GitHub (401 Bad credentials). Vérifiez que vous avez collé la clé commençant par ghp_ et non votre mot de passe.");
+        }
+        throw new Error(errData.message ? `${errData.message} (code ${res.status})` : `Erreur GitHub (${res.status})`);
       }
+
       return res.status === 204 ? null : res.json();
     }
 
@@ -491,19 +558,26 @@
       });
     }
 
-    // Lecture et écriture de js/chantiers.js
+    // Lecture de js/chantiers.js
     async function fetchChantiersFile() {
-      const data = await githubRequest(`contents/js/chantiers.js?ref=${BRANCH}&t=${Date.now()}`);
-      const rawText = base64ToUtf8(data.content);
-      let list = [];
       try {
-        const fn = new Function(`${rawText}; return typeof CHANTIERS !== "undefined" ? CHANTIERS : [];`);
-        const parsed = fn();
-        if (Array.isArray(parsed)) list = parsed;
-      } catch (_e) {
-        list = [];
+        const data = await githubRequest(`contents/js/chantiers.js?ref=${BRANCH}&t=${Date.now()}`);
+        const rawText = base64ToUtf8(data.content);
+        let list = [];
+        try {
+          const fn = new Function(`${rawText}; return typeof CHANTIERS !== "undefined" ? CHANTIERS : [];`);
+          const parsed = fn();
+          if (Array.isArray(parsed)) list = parsed;
+        } catch (_e) {
+          list = [];
+        }
+        return { sha: data.sha, list };
+      } catch (err) {
+        if (err.message.includes("404")) {
+          return { sha: null, list: [] };
+        }
+        throw err;
       }
-      return { sha: data.sha, list };
     }
 
     function buildChantiersJs(list) {
@@ -514,13 +588,15 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
 `;
     }
 
-    // Mise à jour de l'interface de connexion
+    // Gestion de la connexion et de l'affichage
     const authBadge = document.getElementById("auth-badge");
     const tokenSetup = document.getElementById("token-setup");
     const tokenConnected = document.getElementById("token-connected");
     const authAlert = document.getElementById("auth-alert");
+    const saveTokenBtn = document.getElementById("save-token-btn");
+    const tokenInput = document.getElementById("gh-token");
 
-    async function checkAuthAndLoad() {
+    async function checkAuthAndLoad(showSuccessMessage = false) {
       const token = getToken();
       if (!token) {
         authBadge.textContent = "Non connecté";
@@ -530,96 +606,43 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
         return;
       }
 
+      authBadge.textContent = "Vérification...";
+      authBadge.className = "status-badge status-wait";
+      saveTokenBtn.disabled = true;
+      saveTokenBtn.textContent = "Vérification en cours...";
+
       try {
-        await githubRequest("");
+        const repoData = await githubRequest("");
+
+        if (repoData && repoData.permissions && repoData.permissions.push === false) {
+          throw new Error("Cette clé est en lecture seule. Cochez bien la case « repo » sur GitHub.");
+        }
+
         authBadge.textContent = "Connecté";
         authBadge.className = "status-badge status-ok";
         tokenSetup.hidden = true;
         tokenConnected.hidden = false;
+
+        if (showSuccessMessage) {
+          if (storagePersistent) {
+            showAlert(authAlert, "success", "Connexion réussie ! Clé mémorisée sur ce téléphone.");
+          } else {
+            showAlert(authAlert, "warn", "Connecté pour cette session (en navigation privée, Chrome effacera la clé à la fermeture).");
+          }
+        }
+
         await renderExistingList();
       } catch (err) {
-        authBadge.textContent = "Clé invalide";
+        authBadge.textContent = "Erreur";
         authBadge.className = "status-badge status-off";
         tokenSetup.hidden = false;
         tokenConnected.hidden = true;
-        showAlert(authAlert, "error", `Échec de connexion : ${err.message}`);
+        tokenInput.value = token;
+        showAlert(authAlert, "error", err.message);
+      } finally {
+        saveTokenBtn.disabled = false;
+        saveTokenBtn.textContent = "Connecter et mémoriser sur ce téléphone";
       }
     }
 
-    document.getElementById("save-token-btn").addEventListener("click", async () => {
-      const val = document.getElementById("gh-token").value.trim();
-      if (!val) {
-        showAlert(authAlert, "error", "Collez votre clé GitHub avant de valider.");
-        return;
-      }
-      localStorage.setItem(STORAGE_KEY, val);
-      authAlert.style.display = "none";
-      await checkAuthAndLoad();
-    });
-
-    document.getElementById("logout-btn").addEventListener("click", () => {
-      localStorage.removeItem(STORAGE_KEY);
-      document.getElementById("gh-token").value = "";
-      document.getElementById("existing-list").innerHTML = `<p class="hint">Déconnecté.</p>`;
-      checkAuthAndLoad();
-    });
-
-    // Sélection et prévisualisation de la photo
-    const dropzone = document.getElementById("dropzone");
-    const photoInput = document.getElementById("photo-input");
-    const previewBox = document.getElementById("preview-box");
-    const previewImg = document.getElementById("preview-img");
-    const compressionInfo = document.getElementById("compression-info");
-
-    dropzone.addEventListener("click", () => photoInput.click());
-
-    photoInput.addEventListener("change", async () => {
-      const file = photoInput.files && photoInput.files[0];
-      if (!file) return;
-
-      try {
-        const origKb = Math.round(file.size / 1024);
-        const result = await compressImage(file);
-        compressedBase64 = result.base64Data;
-
-        const now = new Date();
-        const stamp = now.toISOString().replace(/[-:T]/g, "").slice(0, 14);
-        compressedFileName = `chantier-${stamp}.jpg`;
-
-        previewImg.src = result.dataUrl;
-        compressionInfo.textContent = `Prête : ${result.width}×${result.height} px • ${result.sizeKb} Ko (au lieu de ${origKb} Ko)`;
-        previewBox.style.display = "flex";
-      } catch (err) {
-        showAlert(document.getElementById("publish-alert"), "error", err.message);
-      }
-    });
-
-    // Publication sur GitHub
-    const uploadForm = document.getElementById("upload-form");
-    const publishBtn = document.getElementById("publish-btn");
-    const publishAlert = document.getElementById("publish-alert");
-
-    uploadForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (!getToken()) {
-        showAlert(publishAlert, "error", "Connectez d'abord votre clé GitHub en haut de la page.");
-        return;
-      }
-      if (!compressedBase64 || !compressedFileName) {
-        showAlert(publishAlert, "error", "Sélectionnez d'abord une photo.");
-        return;
-      }
-
-      const categorie = document.getElementById("categorie").value;
-      const commune = document.getElementById("commune").value.trim() || "Haute-Garonne (31)";
-      const titre = document.getElementById("titre").value.trim() || DEFAULT_TITLES[categorie] || "Réalisation Joclean";
-      const description = document.getElementById("description").value.trim() || "Intervention réalisée avec soin par Joclean.";
-
-      publishBtn.disabled = true;
-      showAlert(publishAlert, "info", "Envoi de la photo vers GitHub en cours...");
-
-      try {
-        // 1. Téléverser l'image compressée dans assets/chantiers/
-        await githubRequest(`contents/assets/chantiers/${compressedFileName}`, {
-          method: "PUT",
-          body: JSON.s
+    saveTokenBtn.addEventListener("click", async () => {
