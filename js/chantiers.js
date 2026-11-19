@@ -15,13 +15,6 @@ const CHANTIERS = [
     lieu: "Labège (31)",
     categorie: "vitres",
     description: "Entretien complet vitres intérieures et extérieures sans traces."
-  },
-  {
-    fichier: "terrasse-auterive.jpg",
-    titre: "Décapage terrasse haute pression",
-    lieu: "Auterive (31)",
-    categorie: "pression",
-    description: "Remise à neuf d'un dallage extérieur encrassé."
   }
   */
 ];
