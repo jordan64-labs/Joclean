@@ -1,0 +1,14 @@
+# Fichiers système
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Éditeurs et IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environnement et journaux
+.env
+*.log
