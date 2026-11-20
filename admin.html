@@ -574,7 +574,8 @@
     const REPO_NAME = "Joclean";
     const BRANCH = "main";
     const STORAGE_KEY = "joclean_gh_token";
-    const GOOGLE_REVIEW_LINK = "https://g.page/r/Cer1lmfHnfCTEAE/review";
+    const GOOGLE_LEAVE_LINK = "https://g.page/r/Cer1lmfHnfCTEAE/review";
+    const GOOGLE_VIEW_LINK = "https://www.google.com/maps/search/?api=1&query=Joclean+31560+Saint-L%C3%A9on";
 
     const DEFAULT_TITLES = {
       vitres: "Nettoyage de vitres",
@@ -803,7 +804,7 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
         const data = await githubRequest(`contents/js/avis.js?ref=${BRANCH}&t=${Date.now()}`);
         const rawText = base64ToUtf8(data.content);
         let list = [];
-        let config = { lienAvis: GOOGLE_REVIEW_LINK, noteGlobale: "5,0", totalAvis: 5 };
+        let config = { lienLaisserAvis: GOOGLE_LEAVE_LINK, lienVoirAvis: GOOGLE_VIEW_LINK, noteGlobale: "5,0", totalAvis: 5 };
         try {
           const fn = new Function(`${rawText}; return { list: typeof AVIS_CLIENTS !== "undefined" ? AVIS_CLIENTS : [], config: typeof GOOGLE_AVIS_CONFIG !== "undefined" ? GOOGLE_AVIS_CONFIG : null };`);
           const parsed = fn();
@@ -813,7 +814,7 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
         return { sha: data.sha, list, config };
       } catch (err) {
         if (err.message.includes("404")) {
-          return { sha: null, list: [], config: { lienAvis: GOOGLE_REVIEW_LINK, noteGlobale: "5,0", totalAvis: 0 } };
+          return { sha: null, list: [], config: { lienLaisserAvis: GOOGLE_LEAVE_LINK, lienVoirAvis: GOOGLE_VIEW_LINK, noteGlobale: "5,0", totalAvis: 0 } };
         }
         throw err;
       }
@@ -825,7 +826,8 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
         ? (list.reduce((acc, item) => acc + (Number(item.note) || 5), 0) / count).toFixed(1).replace(".", ",")
         : "5,0";
       const finalConfig = {
-        lienAvis: (config && config.lienAvis) || GOOGLE_REVIEW_LINK,
+        lienLaisserAvis: (config && (config.lienLaisserAvis || config.lienAvis)) || GOOGLE_LEAVE_LINK,
+        lienVoirAvis: (config && config.lienVoirAvis) || GOOGLE_VIEW_LINK,
         noteGlobale: avg,
         totalAvis: count
       };
