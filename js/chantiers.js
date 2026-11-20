@@ -3,6 +3,13 @@
  */
 const CHANTIERS = [
   {
+    "fichier": "chantier-20261120060719.jpg",
+    "titre": "Nettoyage de vitres",
+    "lieu": "Nailloux outlet Village",
+    "categorie": "vitres",
+    "description": "Entretien des vitres de la boutique Zadig"
+  },
+  {
     "fichier": "chantier-20261120060555.jpg",
     "titre": "Nettoyage de vitres",
     "lieu": "Nailloux outlet Village",
