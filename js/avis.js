@@ -2,7 +2,8 @@
  * AVIS CLIENTS GOOGLE JOCLEAN (Gérée automatiquement via admin.html)
  */
 const GOOGLE_AVIS_CONFIG = {
-  lienAvis: "https://g.page/r/Cer1lmfHnfCTEAE/review",
+  lienLaisserAvis: "https://g.page/r/Cer1lmfHnfCTEAE/review",
+  lienVoirAvis: "https://www.google.com/maps/search/?api=1&query=Joclean+31560+Saint-L%C3%A9on",
   noteGlobale: "5,0",
   totalAvis: 5
 };

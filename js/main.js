@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadChantiersFresh();
 
-  // 4. Avis Clients Google (chargement sans cache de js/avis.js)
+  // 4. Avis Clients Google (2 liens distincts : déposer un avis vs consulter la fiche Google)
   const reviewsGrid = document.getElementById("reviews-grid");
   const ratingValEl = document.getElementById("google-rating-value");
   const ratingCountEl = document.getElementById("google-rating-count");
@@ -304,9 +304,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderReviews(list, config) {
     if (!reviewsGrid) return;
-    const link = (config && config.lienAvis) || "https://g.page/r/Cer1lmfHnfCTEAE/review";
-    if (btnLeaveReview) btnLeaveReview.href = link;
-    if (btnAllReviews) btnAllReviews.href = link;
+    const leaveLink = (config && (config.lienLaisserAvis || config.lienAvis)) || "https://g.page/r/Cer1lmfHnfCTEAE/review";
+    const viewLink = (config && config.lienVoirAvis) || "https://www.google.com/maps/search/?api=1&query=Joclean+31560+Saint-L%C3%A9on";
+    if (btnLeaveReview) btnLeaveReview.href = leaveLink;
+    if (btnAllReviews) btnAllReviews.href = viewLink;
 
     const total = (config && config.totalAvis) || list.length;
     if (ratingValEl && config && config.noteGlobale) {
