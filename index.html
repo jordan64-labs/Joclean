@@ -20,7 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
   <link rel="icon" type="image/png" href="assets/logo.png">
-  <link rel="stylesheet" href="css/style.css?v=2">
+  <link rel="stylesheet" href="css/style.css?v=3">
 
   <!-- SEO Local Google Fiche d'établissement -->
   <script type="application/ld+json">
@@ -188,13 +188,13 @@
       </div>
     </section>
 
-    <!-- Section Réalisations & Galerie carrousel -->
+    <!-- Section Réalisations & Galerie carrousel + Avant / Après -->
     <section class="section section-soft" id="realisations">
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">En images</span>
           <h2>Nos derniers chantiers</h2>
-          <p>Faites défiler nos réalisations en Haute-Garonne ou filtrez par type de prestation.</p>
+          <p>Faites défiler nos réalisations en Haute-Garonne ou glissez le curseur Avant / Après sur nos comparatifs.</p>
         </div>
 
         <!-- Filtres par catégorie -->
@@ -369,13 +369,13 @@
     <a href="#contact" class="dock-btn dock-quote">Devis gratuit</a>
   </div>
 
-  <!-- Visionneuse plein écran (Lightbox) avec flèches -->
+  <!-- Visionneuse plein écran (Lightbox) avec flèches & support Avant / Après -->
   <dialog class="lightbox-dialog" id="lightbox-dialog" aria-label="Aperçu de la réalisation">
     <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Fermer">&times;</button>
     <button type="button" class="lightbox-arrow prev" id="lightbox-prev" aria-label="Photo précédente">&#10094;</button>
     <button type="button" class="lightbox-arrow next" id="lightbox-next" aria-label="Photo suivante">&#10095;</button>
     <figure class="lightbox-figure">
-      <img id="lightbox-img" src="" alt="">
+      <div class="lightbox-media" id="lightbox-media"></div>
       <figcaption id="lightbox-caption"></figcaption>
     </figure>
   </dialog>
@@ -406,6 +406,6 @@
     </div>
   </dialog>
 
-  <script src="js/main.js?v=2"></script>
+  <script src="js/main.js?v=3"></script>
 </body>
 </html>
