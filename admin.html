@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Joclean Admin — Publier des photos</title>
+  <title>Joclean Admin — Photos & Avis Google</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/png" href="assets/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -131,6 +131,14 @@
     .status-wait { background: var(--warn-soft); color: var(--warn); }
 
     .form-group { margin-bottom: 1rem; }
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    @media (max-width: 520px) {
+      .form-row-2 { grid-template-columns: 1fr; }
+    }
     label {
       display: block;
       font-size: 0.86rem;
@@ -233,7 +241,6 @@
       display: block;
     }
 
-    /* Boutons interactifs avec retours d'état */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -304,16 +311,13 @@
       flex-shrink: 0;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
       25% { transform: translateX(-5px); }
       75% { transform: translateX(5px); }
     }
 
-    /* Alertes contrôlées uniquement par classes */
     .alert {
       padding: 0.85rem 1rem;
       border-radius: 10px;
@@ -366,6 +370,7 @@
     .existing-meta span {
       font-size: 0.78rem;
       color: var(--ink-500);
+      display: block;
     }
     .mini-ba-tag {
       display: inline-block;
@@ -385,7 +390,7 @@
   <header class="topbar">
     <div class="topbar-brand">
       <img src="assets/logo.png" alt="Joclean">
-      <div>Jo<span class="accent">Clean</span> Admin <span class="version-tag">v4</span></div>
+      <div>Jo<span class="accent">Clean</span> Admin <span class="version-tag">v5</span></div>
     </div>
     <a href="./" class="site-link">Voir le site ↗</a>
   </header>
@@ -432,7 +437,6 @@
       </div>
 
       <form id="upload-form" novalidate>
-        <!-- Case 1 : Photo principale (ou APRÈS) -->
         <div class="form-group">
           <label for="photo-input">1. Photo du chantier — ou résultat APRÈS *</label>
           <div class="dropzone" id="dropzone">
@@ -451,7 +455,6 @@
           </div>
         </div>
 
-        <!-- Case 2 : Photo AVANT (facultative) -->
         <div class="form-group">
           <label for="photo-before-input">2. Photo AVANT (facultatif — active le curseur Avant / Après)</label>
           <div class="dropzone dropzone-optional" id="dropzone-before">
@@ -516,6 +519,54 @@
       </div>
     </section>
 
+    <!-- Bloc 4 : Ajouter / Gérer les avis clients Google -->
+    <section class="card">
+      <div class="card-header">
+        <h2>4. Avis clients Google</h2>
+        <button type="button" class="btn btn-danger-sm" style="background:#eef4fc;color:#1b56a8;" id="refresh-avis-btn">Actualiser</button>
+      </div>
+      <p class="hint" style="margin-top:0;">Ajoutez un nouvel avis reçu sur votre fiche Google pour l'afficher sur le site.</p>
+
+      <form id="avis-form" novalidate>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="avis-auteur">Nom du client *</label>
+            <input type="text" id="avis-auteur" placeholder="Ex. : Sabine Regouby">
+          </div>
+          <div class="form-group">
+            <label for="avis-note">Note *</label>
+            <select id="avis-note">
+              <option value="5">★★★★★ (5/5)</option>
+              <option value="4">★★★★☆ (4/5)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="avis-prestation">Prestation (facultatif)</label>
+            <input type="text" id="avis-prestation" placeholder="Ex. : Nettoyage vitres">
+          </div>
+          <div class="form-group">
+            <label for="avis-date">Date (facultatif)</label>
+            <input type="text" id="avis-date" placeholder="Ex. : Novembre 2026">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="avis-commentaire">Commentaire du client (facultatif)</label>
+          <textarea id="avis-commentaire" rows="2" placeholder="Collez le texte de l'avis Google..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-secondary" id="add-avis-btn">Publier cet avis sur le site</button>
+        <div class="alert" id="avis-alert" role="status"></div>
+      </form>
+
+      <div class="existing-list" id="existing-avis-list" style="margin-top:1rem;">
+        <p class="hint">Connectez votre clé GitHub pour afficher vos avis enregistrés.</p>
+      </div>
+    </section>
+
   </main>
 
   <script>
@@ -523,6 +574,7 @@
     const REPO_NAME = "Joclean";
     const BRANCH = "main";
     const STORAGE_KEY = "joclean_gh_token";
+    const GOOGLE_REVIEW_LINK = "https://g.page/r/Cer1lmfHnfCTEAE/review";
 
     const DEFAULT_TITLES = {
       vitres: "Nettoyage de vitres",
@@ -565,7 +617,7 @@
     }
 
     function cleanToken(raw) {
-      return (raw || "").replace(/[\s\u200B-\u200D\uFEFF]/g, "");
+      return (raw || "").replace(/[\s​-‍﻿]/g, "");
     }
 
     function getToken() {
@@ -746,6 +798,46 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
 `;
     }
 
+    async function fetchAvisFile() {
+      try {
+        const data = await githubRequest(`contents/js/avis.js?ref=${BRANCH}&t=${Date.now()}`);
+        const rawText = base64ToUtf8(data.content);
+        let list = [];
+        let config = { lienAvis: GOOGLE_REVIEW_LINK, noteGlobale: "5,0", totalAvis: 5 };
+        try {
+          const fn = new Function(`${rawText}; return { list: typeof AVIS_CLIENTS !== "undefined" ? AVIS_CLIENTS : [], config: typeof GOOGLE_AVIS_CONFIG !== "undefined" ? GOOGLE_AVIS_CONFIG : null };`);
+          const parsed = fn();
+          if (Array.isArray(parsed.list)) list = parsed.list;
+          if (parsed.config) config = { ...config, ...parsed.config };
+        } catch (_e) {}
+        return { sha: data.sha, list, config };
+      } catch (err) {
+        if (err.message.includes("404")) {
+          return { sha: null, list: [], config: { lienAvis: GOOGLE_REVIEW_LINK, noteGlobale: "5,0", totalAvis: 0 } };
+        }
+        throw err;
+      }
+    }
+
+    function buildAvisJs(list, config) {
+      const count = list.length;
+      const avg = count > 0
+        ? (list.reduce((acc, item) => acc + (Number(item.note) || 5), 0) / count).toFixed(1).replace(".", ",")
+        : "5,0";
+      const finalConfig = {
+        lienAvis: (config && config.lienAvis) || GOOGLE_REVIEW_LINK,
+        noteGlobale: avg,
+        totalAvis: count
+      };
+      return `/**
+ * AVIS CLIENTS GOOGLE JOCLEAN (Gérée automatiquement via admin.html)
+ */
+const GOOGLE_AVIS_CONFIG = ${JSON.stringify(finalConfig, null, 2)};
+
+const AVIS_CLIENTS = ${JSON.stringify(list, null, 2)};
+`;
+    }
+
     // Connexion GitHub
     const authBadge = document.getElementById("auth-badge");
     const tokenSetup = document.getElementById("token-setup");
@@ -790,7 +882,7 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
           }
         }
 
-        await renderExistingList();
+        await Promise.all([renderExistingList(), renderExistingAvis()]);
       } catch (err) {
         setButtonState(saveTokenBtn, "error", "❌ Échec de la requête", 3000, DEFAULT_SAVE_LABEL);
         authBadge.textContent = "Échec";
@@ -821,6 +913,7 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
       hideAlert(authAlert);
       setButtonState(saveTokenBtn, "default", DEFAULT_SAVE_LABEL);
       document.getElementById("existing-list").innerHTML = `<p class="hint">Déconnecté.</p>`;
+      document.getElementById("existing-avis-list").innerHTML = `<p class="hint">Déconnecté.</p>`;
       checkAuthAndLoad(false);
     });
 
@@ -901,7 +994,7 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
       updateBaBanner();
     });
 
-    // Publication sur GitHub (1 photo classique OU 2 photos Avant / Après)
+    // Publication sur GitHub
     const uploadForm = document.getElementById("upload-form");
     const publishBtn = document.getElementById("publish-btn");
     const DEFAULT_PUBLISH_LABEL = "Publier sur le site";
@@ -935,7 +1028,6 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
       showAlert(publishAlert, "info", "Envoi vers GitHub en cours...");
 
       try {
-        // 1. Téléverser la photo principale / APRÈS
         await githubRequest(`contents/assets/chantiers/${mainFileName}`, {
           method: "PUT",
           body: JSON.stringify({
@@ -945,7 +1037,6 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
           })
         });
 
-        // 2. Si mode Avant / Après, téléverser la photo AVANT
         if (isBeforeAfter && beforeFileName) {
           setButtonState(publishBtn, "sending", `Envoi photo Avant (2/${totalSteps})...`);
           await githubRequest(`contents/assets/chantiers/${beforeFileName}`, {
@@ -958,7 +1049,6 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
           });
         }
 
-        // 3. Mettre à jour js/chantiers.js
         setButtonState(publishBtn, "sending", `Mise à jour galerie (${totalSteps}/${totalSteps})...`);
         const { sha, list } = await fetchChantiersFile();
 
@@ -1091,7 +1181,123 @@ const CHANTIERS = ${JSON.stringify(list, null, 2)};
       }
     }
 
+    // Gestion des avis clients Google (Bloc 4)
+    const avisForm = document.getElementById("avis-form");
+    const addAvisBtn = document.getElementById("add-avis-btn");
+    const avisAlert = document.getElementById("avis-alert");
+    const DEFAULT_AVIS_LABEL = "Publier cet avis sur le site";
+
+    avisForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!getToken()) {
+        setButtonState(addAvisBtn, "error", "⚠️ Non connecté — requête non envoyée", 2500, DEFAULT_AVIS_LABEL);
+        showAlert(avisAlert, "error", "Connectez d'abord votre clé GitHub en haut de la page.");
+        return;
+      }
+
+      const auteur = document.getElementById("avis-auteur").value.trim();
+      const note = Number(document.getElementById("avis-note").value) || 5;
+      const prestation = document.getElementById("avis-prestation").value.trim();
+      const date = document.getElementById("avis-date").value.trim();
+      const commentaire = document.getElementById("avis-commentaire").value.trim();
+
+      if (!auteur) {
+        setButtonState(addAvisBtn, "error", "⚠️ Indiquez le nom du client", 2500, DEFAULT_AVIS_LABEL);
+        showAlert(avisAlert, "error", "Saisissez le nom du client avant de publier.");
+        return;
+      }
+
+      setButtonState(addAvisBtn, "sending", "Enregistrement de l'avis...");
+      hideAlert(avisAlert);
+
+      try {
+        const { sha, list, config } = await fetchAvisFile();
+        list.unshift({ auteur, note, prestation, date, commentaire });
+
+        const putPayload = {
+          message: `Ajout avis client (${auteur})`,
+          content: utf8ToBase64(buildAvisJs(list, config)),
+          branch: BRANCH
+        };
+        if (sha) putPayload.sha = sha;
+
+        await githubRequest("contents/js/avis.js", {
+          method: "PUT",
+          body: JSON.stringify(putPayload)
+        });
+
+        setButtonState(addAvisBtn, "success", "✅ Avis publié !", 2500, DEFAULT_AVIS_LABEL);
+        showAlert(avisAlert, "success", "✅ Avis ajouté ! Il sera visible sur le site dans environ 1 minute.");
+        avisForm.reset();
+        await renderExistingAvis();
+      } catch (err) {
+        setButtonState(addAvisBtn, "error", "❌ Échec de l'envoi", 3000, DEFAULT_AVIS_LABEL);
+        showAlert(avisAlert, "error", `Erreur : ${err.message}`);
+      }
+    });
+
+    async function renderExistingAvis() {
+      const container = document.getElementById("existing-avis-list");
+      try {
+        const { list } = await fetchAvisFile();
+        if (list.length === 0) {
+          container.innerHTML = `<p class="hint">Aucun avis enregistré dans js/avis.js.</p>`;
+          return;
+        }
+
+        container.innerHTML = "";
+        list.forEach((avis, idx) => {
+          const row = document.createElement("div");
+          row.className = "existing-item";
+          const stars = "★".repeat(Number(avis.note) || 5);
+          row.innerHTML = `
+            <div class="existing-meta">
+              <strong>${avis.auteur} (${stars})</strong>
+              <span>${avis.prestation || "Avis Google"} ${avis.date ? "• " + avis.date : ""}</span>
+            </div>
+            <button type="button" class="btn btn-danger-sm">Supprimer</button>
+          `;
+
+          row.querySelector("button").addEventListener("click", async (ev) => {
+            const delBtn = ev.currentTarget;
+            if (!confirm(`Retirer l'avis de "${avis.auteur}" du site ?`)) return;
+            delBtn.disabled = true;
+            delBtn.textContent = "Envoi...";
+            row.style.opacity = "0.6";
+
+            try {
+              const { sha, list: currentList, config } = await fetchAvisFile();
+              const updatedList = currentList.filter((_, i) => i !== idx);
+              const delPayload = {
+                message: `Retrait avis (${avis.auteur})`,
+                content: utf8ToBase64(buildAvisJs(updatedList, config)),
+                branch: BRANCH
+              };
+              if (sha) delPayload.sha = sha;
+
+              await githubRequest("contents/js/avis.js", {
+                method: "PUT",
+                body: JSON.stringify(delPayload)
+              });
+
+              await renderExistingAvis();
+            } catch (delErr) {
+              alert(`Impossible de supprimer : ${delErr.message}`);
+              delBtn.disabled = false;
+              delBtn.textContent = "Supprimer";
+              row.style.opacity = "1";
+            }
+          });
+
+          container.appendChild(row);
+        });
+      } catch (err) {
+        container.innerHTML = `<p class="hint">Erreur de chargement : ${err.message}</p>`;
+      }
+    }
+
     document.getElementById("refresh-list-btn").addEventListener("click", renderExistingList);
+    document.getElementById("refresh-avis-btn").addEventListener("click", renderExistingAvis);
 
     checkAuthAndLoad(false);
   </script>

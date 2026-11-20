@@ -20,7 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
   <link rel="icon" type="image/png" href="assets/logo.png">
-  <link rel="stylesheet" href="css/style.css?v=3">
+  <link rel="stylesheet" href="css/style.css?v=4">
 
   <!-- SEO Local Google Fiche d'établissement -->
   <script type="application/ld+json">
@@ -34,6 +34,11 @@
     "telephone": "+33681986293",
     "email": "eijoclean@gmail.com",
     "taxID": "51872156800054",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5.0",
+      "reviewCount": "5"
+    },
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "12 Rue Des Pyrénées, Villa 11",
@@ -79,6 +84,7 @@
         <ul>
           <li><a href="#prestations">Prestations</a></li>
           <li><a href="#realisations">Réalisations</a></li>
+          <li><a href="#avis">Avis Google</a></li>
           <li><a href="#zone">Secteur</a></li>
           <li><a href="tel:+33681986293" class="nav-phone">06 81 98 62 93</a></li>
           <li><a href="#contact" class="btn btn-primary btn-sm">Devis gratuit</a></li>
@@ -111,6 +117,11 @@
 
           <div class="trust-strip">
             <div class="trust-item">
+              <strong>5,0 ★ sur Google</strong>
+              <span>Avis clients vérifiés</span>
+            </div>
+            <div class="trust-divider"></div>
+            <div class="trust-item">
               <strong>Devis sous 24h</strong>
               <span>Gratuit et sans engagement</span>
             </div>
@@ -118,11 +129,6 @@
             <div class="trust-item">
               <strong>Interlocuteur unique</strong>
               <span>Suivi direct sur chaque chantier</span>
-            </div>
-            <div class="trust-divider"></div>
-            <div class="trust-item">
-              <strong>Équipement pro</strong>
-              <span>Finition sans traces garantie</span>
             </div>
           </div>
         </div>
@@ -213,7 +219,7 @@
           <button type="button" class="carousel-arrow next" id="gallery-next" aria-label="Photo suivante">&#10095;</button>
         </div>
 
-        <!-- Barre de navigation sous la photo (flèches + compteur) -->
+        <!-- Barre de navigation sous la photo -->
         <div class="carousel-nav" id="carousel-nav" hidden>
           <button type="button" class="nav-pill-btn" id="gallery-prev-bottom">‹ Précédente</button>
           <span class="carousel-counter" id="carousel-counter">1 / 1</span>
@@ -230,8 +236,45 @@
       </div>
     </section>
 
+    <!-- Section Avis Clients Google -->
+    <section class="section" id="avis">
+      <div class="container">
+        <div class="section-header">
+          <span class="eyebrow">Satisfaction client</span>
+          <h2>Ce que nos clients disent de Joclean</h2>
+          <p>Retours authentiques publiés sur notre Fiche d'établissement Google.</p>
+        </div>
+
+        <!-- Bandeau récapitulatif Google 5,0 / 5 -->
+        <div class="google-summary-bar">
+          <div class="google-score-box">
+            <span class="google-g-badge" aria-hidden="true">G</span>
+            <div>
+              <div class="google-score-line">
+                <strong id="google-rating-value">5,0</strong>
+                <span class="google-stars" aria-label="5 étoiles sur 5">★★★★★</span>
+              </div>
+              <span class="google-count-label">Basé sur <strong id="google-rating-count">5 avis</strong> vérifiés sur Google</span>
+            </div>
+          </div>
+
+          <div class="google-cta-group">
+            <a href="https://g.page/r/Cer1lmfHnfCTEAE/review" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" id="btn-leave-review">
+              ★ Laisser un avis sur Google
+            </a>
+            <a href="https://g.page/r/Cer1lmfHnfCTEAE/review" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" id="btn-all-reviews">
+              Voir tous nos avis sur Google ↗
+            </a>
+          </div>
+        </div>
+
+        <!-- Grille des avis clients -->
+        <div class="reviews-grid" id="reviews-grid"></div>
+      </div>
+    </section>
+
     <!-- Section Zone d'intervention -->
-    <section class="section" id="zone">
+    <section class="section section-soft" id="zone">
       <div class="container">
         <div class="zone-card">
           <div class="zone-info">
@@ -260,7 +303,7 @@
     </section>
 
     <!-- Section Contact -->
-    <section class="section section-soft" id="contact">
+    <section class="section" id="contact">
       <div class="container contact-layout">
         <div class="contact-details">
           <span class="eyebrow">Contact direct</span>
@@ -406,6 +449,6 @@
     </div>
   </dialog>
 
-  <script src="js/main.js?v=3"></script>
+  <script src="js/main.js?v=4"></script>
 </body>
 </html>
