@@ -20,7 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
   <link rel="icon" type="image/png" href="assets/logo.png">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=2">
 
   <!-- SEO Local Google Fiche d'établissement -->
   <script type="application/ld+json">
@@ -188,13 +188,13 @@
       </div>
     </section>
 
-    <!-- Section Réalisations & Galerie dynamique -->
+    <!-- Section Réalisations & Galerie carrousel -->
     <section class="section section-soft" id="realisations">
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">En images</span>
           <h2>Nos derniers chantiers</h2>
-          <p>Découvrez en photos la qualité de nos interventions sur le terrain en Haute-Garonne.</p>
+          <p>Faites défiler nos réalisations en Haute-Garonne ou filtrez par type de prestation.</p>
         </div>
 
         <!-- Filtres par catégorie -->
@@ -206,14 +206,25 @@
           <button type="button" class="filter-btn" data-filter="pression">Haute pression</button>
         </div>
 
-        <!-- Grille alimentée automatiquement par js/chantiers.js -->
-        <div class="gallery-grid" id="gallery-grid"></div>
+        <!-- Carrousel avec flèches gauche / droite -->
+        <div class="carousel-wrapper" id="carousel-wrapper">
+          <button type="button" class="carousel-arrow prev" id="gallery-prev" aria-label="Photo précédente">&#10094;</button>
+          <div class="gallery-stage" id="gallery-stage"></div>
+          <button type="button" class="carousel-arrow next" id="gallery-next" aria-label="Photo suivante">&#10095;</button>
+        </div>
 
-        <!-- Message affiché tant qu'aucune photo n'a été ajoutée -->
-        <div class="gallery-empty" id="gallery-empty">
+        <!-- Barre de navigation sous la photo (flèches + compteur) -->
+        <div class="carousel-nav" id="carousel-nav" hidden>
+          <button type="button" class="nav-pill-btn" id="gallery-prev-bottom">‹ Précédente</button>
+          <span class="carousel-counter" id="carousel-counter">1 / 1</span>
+          <button type="button" class="nav-pill-btn" id="gallery-next-bottom">Suivante ›</button>
+        </div>
+
+        <!-- Message affiché si aucune photo dans la catégorie -->
+        <div class="gallery-empty" id="gallery-empty" hidden>
           <div class="empty-icon">📸</div>
-          <h3>Galerie photos en cours de mise à jour</h3>
-          <p>Nos prochaines réalisations (vitrines, résidences et nettoyages haute pression) seront publiées ici très prochainement.</p>
+          <h3>Aucune photo dans cette catégorie</h3>
+          <p>D'autres réalisations seront ajoutées très prochainement.</p>
           <a href="#contact" class="btn btn-secondary btn-sm">Demander une estimation pour votre chantier</a>
         </div>
       </div>
@@ -358,9 +369,11 @@
     <a href="#contact" class="dock-btn dock-quote">Devis gratuit</a>
   </div>
 
-  <!-- Visionneuse plein écran (Lightbox) pour les photos de chantiers -->
+  <!-- Visionneuse plein écran (Lightbox) avec flèches -->
   <dialog class="lightbox-dialog" id="lightbox-dialog" aria-label="Aperçu de la réalisation">
     <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Fermer">&times;</button>
+    <button type="button" class="lightbox-arrow prev" id="lightbox-prev" aria-label="Photo précédente">&#10094;</button>
+    <button type="button" class="lightbox-arrow next" id="lightbox-next" aria-label="Photo suivante">&#10095;</button>
     <figure class="lightbox-figure">
       <img id="lightbox-img" src="" alt="">
       <figcaption id="lightbox-caption"></figcaption>
@@ -393,7 +406,6 @@
     </div>
   </dialog>
 
-  <script src="js/chantiers.js"></script>
-  <script src="js/main.js"></script>
+  <script src="js/main.js?v=2"></script>
 </body>
 </html>
