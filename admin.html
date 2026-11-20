@@ -3,9 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Joclean Admin — Photos & Avis Google</title>
+  <title>JoClean Admin — Photos & Avis Google</title>
   <meta name="robots" content="noindex, nofollow">
-  <link rel="icon" type="image/png" href="assets/logo.png">
+
+  <!-- Configuration PWA installable sur Android / Chrome -->
+  <link rel="manifest" href="manifest-admin.json">
+  <meta name="theme-color" content="#1b56a8">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="JoClean Admin">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
@@ -51,6 +61,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 0.5rem;
       position: sticky;
       top: 0;
       z-index: 20;
@@ -75,11 +86,28 @@
     .version-tag {
       font-size: 0.72rem;
       font-weight: 700;
-      background: var(--blue-soft);
-      color: var(--blue);
+      background: var(--teal-soft);
+      color: var(--teal-dark);
       padding: 0.15rem 0.45rem;
       border-radius: 6px;
     }
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .install-pill {
+      font-family: "Plus Jakarta Sans", sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--white);
+      background: linear-gradient(135deg, var(--teal) 0%, var(--blue) 100%);
+      border: none;
+      padding: 0.42rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .install-pill[hidden] { display: none; }
     .site-link {
       font-size: 0.85rem;
       font-weight: 600;
@@ -88,6 +116,7 @@
       padding: 0.4rem 0.75rem;
       border-radius: 8px;
       background: var(--blue-soft);
+      white-space: nowrap;
     }
 
     .wrap {
@@ -389,10 +418,13 @@
 
   <header class="topbar">
     <div class="topbar-brand">
-      <img src="assets/logo.png" alt="Joclean">
-      <div>Jo<span class="accent">Clean</span> Admin <span class="version-tag">v5</span></div>
+      <img src="assets/icon-192.png" onerror="this.onerror=null;this.src='assets/logo.png';" alt="Joclean">
+      <div>Jo<span class="accent">Clean</span> Admin <span class="version-tag">PWA</span></div>
     </div>
-    <a href="./" class="site-link">Voir le site ↗</a>
+    <div class="topbar-actions">
+      <button type="button" class="install-pill" id="install-pwa-btn" hidden>📲 Installer</button>
+      <a href="./" class="site-link">Voir le site ↗</a>
+    </div>
   </header>
 
   <main class="wrap">
@@ -570,6 +602,40 @@
   </main>
 
   <script>
+    // Enregistrement du Service Worker PWA pour débloquer l'installation native Chrome / Android
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
+
+    // Bouton d'installation directe lorsque Chrome propose l'installation PWA
+    let deferredInstallPrompt = null;
+    const installBtn = document.getElementById("install-pwa-btn");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      if (installBtn) installBtn.hidden = false;
+    });
+
+    if (installBtn) {
+      installBtn.addEventListener("click", async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        const choice = await deferredInstallPrompt.userChoice;
+        if (choice && choice.outcome === "accepted") {
+          installBtn.hidden = true;
+        }
+        deferredInstallPrompt = null;
+      });
+    }
+
+    window.addEventListener("appinstalled", () => {
+      if (installBtn) installBtn.hidden = true;
+      deferredInstallPrompt = null;
+    });
+
     const REPO_OWNER = "jordan64-labs";
     const REPO_NAME = "Joclean";
     const BRANCH = "main";
@@ -618,7 +684,7 @@
     }
 
     function cleanToken(raw) {
-      return (raw || "").replace(/[\s​-‍﻿]/g, "");
+      return (raw || "").replace(/[\s\u200B-\u200D\uFEFF]/g, "");
     }
 
     function getToken() {

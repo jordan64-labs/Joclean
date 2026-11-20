@@ -1,0 +1,26 @@
+{
+  "name": "JoClean Admin",
+  "short_name": "JoClean Admin",
+  "description": "Application d'administration JoClean — Publication de photos de chantiers et avis Google",
+  "start_url": "./admin.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#1b56a8",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
