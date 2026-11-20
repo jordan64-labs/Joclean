@@ -3,6 +3,13 @@
  */
 const CHANTIERS = [
   {
+    "fichier": "chantier-20261120060944.jpg",
+    "titre": "Entretien de résidence",
+    "lieu": "Nailloux",
+    "categorie": "residences",
+    "description": "Entretien hebdomadaire de résidence"
+  },
+  {
     "fichier": "chantier-20261120060826.jpg",
     "titre": "Entretien de résidence",
     "lieu": "Nailloux",
