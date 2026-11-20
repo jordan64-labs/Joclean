@@ -96,12 +96,10 @@ document.addEventListener("DOMContentLoaded", () => {
     range.addEventListener("input", updatePos);
     range.addEventListener("change", updatePos);
 
-    // Empêche le swipe du carrousel de se déclencher quand on manipule le curseur
     ["touchstart", "touchmove", "touchend", "click"].forEach((evt) => {
       range.addEventListener(evt, (e) => e.stopPropagation(), { passive: true });
     });
 
-    // Adapte le ratio en plein écran selon la photo si dans la lightbox
     if (container === lightboxMedia) {
       const afterImg = ba.querySelector(".ba-img-after");
       if (afterImg) {
@@ -239,7 +237,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (lightboxPrev) lightboxPrev.addEventListener("click", goPrev);
   if (lightboxNext) lightboxNext.addEventListener("click", goNext);
 
-  // Glissement tactile (swipe) sur mobile — ignoré quand on touche le curseur Avant / Après
   let touchStartX = 0;
   let touchOnSlider = false;
   if (galleryStage) {
@@ -260,7 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }, { passive: true });
   }
 
-  // Navigation clavier dans la visionneuse
   document.addEventListener("keydown", (e) => {
     if (!lightboxDialog || !lightboxDialog.open) return;
     if (document.activeElement && document.activeElement.classList.contains("ba-range")) return;
@@ -283,7 +279,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Chargement dynamique sans cache de js/chantiers.js
   function loadChantiersFresh() {
     const script = document.createElement("script");
     script.src = `js/chantiers.js?t=${Date.now()}`;
@@ -300,7 +295,76 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadChantiersFresh();
 
-  // 4. Copie rapide de l'e-mail
+  // 4. Avis Clients Google (chargement sans cache de js/avis.js)
+  const reviewsGrid = document.getElementById("reviews-grid");
+  const ratingValEl = document.getElementById("google-rating-value");
+  const ratingCountEl = document.getElementById("google-rating-count");
+  const btnLeaveReview = document.getElementById("btn-leave-review");
+  const btnAllReviews = document.getElementById("btn-all-reviews");
+
+  function renderReviews(list, config) {
+    if (!reviewsGrid) return;
+    const link = (config && config.lienAvis) || "https://g.page/r/Cer1lmfHnfCTEAE/review";
+    if (btnLeaveReview) btnLeaveReview.href = link;
+    if (btnAllReviews) btnAllReviews.href = link;
+
+    const total = (config && config.totalAvis) || list.length;
+    if (ratingValEl && config && config.noteGlobale) {
+      ratingValEl.textContent = config.noteGlobale;
+    }
+    if (ratingCountEl && total > 0) {
+      ratingCountEl.textContent = `${total} avis`;
+    }
+
+    reviewsGrid.innerHTML = "";
+    list.forEach((avis) => {
+      const note = Math.max(1, Math.min(5, Number(avis.note) || 5));
+      const stars = "★".repeat(note) + "☆".repeat(5 - note);
+      const initial = escapeHtml((avis.auteur || "C").trim().charAt(0).toUpperCase());
+      const comment = (avis.commentaire || "").trim();
+
+      const card = document.createElement("article");
+      card.className = "review-card";
+      card.innerHTML = `
+        <div class="review-card-top">
+          <div class="review-avatar" aria-hidden="true">${initial}</div>
+          <div class="review-author-info">
+            <strong>${escapeHtml(avis.auteur)}</strong>
+            ${avis.date ? `<span class="review-date">${escapeHtml(avis.date)}</span>` : ""}
+          </div>
+          <span class="review-google-tag">Google</span>
+        </div>
+        <div class="review-stars-row">
+          <span class="review-stars" aria-label="${note} étoiles sur 5">${stars}</span>
+          ${avis.prestation ? `<span class="review-service-pill">${escapeHtml(avis.prestation)}</span>` : ""}
+        </div>
+        ${
+          comment
+            ? `<p class="review-text">« ${escapeHtml(comment)} »</p>`
+            : `<p class="review-text-empty">Note ${note}/5 attribuée sur Google.</p>`
+        }
+      `;
+      reviewsGrid.appendChild(card);
+    });
+  }
+
+  function loadAvisFresh() {
+    const script = document.createElement("script");
+    script.src = `js/avis.js?t=${Date.now()}`;
+    script.onload = () => {
+      const list = typeof AVIS_CLIENTS !== "undefined" && Array.isArray(AVIS_CLIENTS) ? AVIS_CLIENTS : [];
+      const cfg = typeof GOOGLE_AVIS_CONFIG !== "undefined" ? GOOGLE_AVIS_CONFIG : null;
+      renderReviews(list, cfg);
+    };
+    script.onerror = () => {
+      renderReviews([], null);
+    };
+    document.body.appendChild(script);
+  }
+
+  loadAvisFresh();
+
+  // 5. Copie rapide de l'e-mail
   const copyBtn = document.getElementById("copy-email-btn");
   const copyFeedback = document.getElementById("copy-feedback");
 
@@ -319,7 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 5. Validation du formulaire de devis
+  // 6. Validation du formulaire de devis
   const contactForm = document.getElementById("contact-form");
   const formStatus = document.getElementById("form-status");
 
@@ -367,14 +431,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const subject = encodeURIComponent(`Demande de devis Joclean - ${prestation} (${commune})`);
       const body = encodeURIComponent(
-        `Bonjour Jordan,\n\n` +
-        `Je souhaite obtenir un devis pour une prestation Joclean :\n\n` +
-        `- Nom / Entreprise : ${nom}\n` +
-        `- Téléphone : ${telephone}\n` +
-        `- Commune : ${commune}\n` +
-        `- Prestation : ${prestation}\n\n` +
-        `Précisions :\n${message}\n\n` +
-        `Cordialement,\n${nom}`
+        `Bonjour Jordan,
+
+` +
+        `Je souhaite obtenir un devis pour une prestation Joclean :
+
+` +
+        `- Nom / Entreprise : ${nom}
+` +
+        `- Téléphone : ${telephone}
+` +
+        `- Commune : ${commune}
+` +
+        `- Prestation : ${prestation}
+
+` +
+        `Précisions :
+${message}
+
+` +
+        `Cordialement,
+${nom}`
       );
 
       if (formStatus) {
@@ -385,7 +462,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 6. Modale Mentions légales
+  // 7. Modale Mentions légales
   const legalDialog = document.getElementById("legal-dialog");
   const openLegalBtn = document.getElementById("open-legal-btn");
   const closeLegalBtn = document.getElementById("close-legal-btn");
