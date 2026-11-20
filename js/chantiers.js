@@ -3,6 +3,13 @@
  */
 const CHANTIERS = [
   {
+    "fichier": "chantier-20261120061028.jpg",
+    "titre": "Nettoyage de locaux professionnels",
+    "lieu": "Quint-Fonsegrives",
+    "categorie": "locaux",
+    "description": "Remise en état des vitres après le chantier"
+  },
+  {
     "fichier": "chantier-20261120060944.jpg",
     "titre": "Entretien de résidence",
     "lieu": "Nailloux",
