@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 3. Galerie Carrousel avec chargement sans cache de js/chantiers.js
+  // 3. Galerie Carrousel + Comparateur Avant / Après
   const galleryStage = document.getElementById("gallery-stage");
   const galleryEmpty = document.getElementById("gallery-empty");
   const carouselNav = document.getElementById("carousel-nav");
@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const filterBtns = document.querySelectorAll(".filter-btn");
 
   const lightboxDialog = document.getElementById("lightbox-dialog");
-  const lightboxImg = document.getElementById("lightbox-img");
+  const lightboxMedia = document.getElementById("lightbox-media");
   const lightboxCaption = document.getElementById("lightbox-caption");
   const lightboxClose = document.getElementById("lightbox-close");
   const lightboxPrev = document.getElementById("lightbox-prev");
@@ -48,27 +48,98 @@ document.addEventListener("DOMContentLoaded", () => {
     pression: "Haute pression"
   };
 
+  const RAW_BASE = "https://raw.githubusercontent.com/jordan64-labs/Joclean/main/assets/chantiers/";
+
   let allChantiers = [];
   let filteredList = [];
   let currentIndex = 0;
 
-  function updateLightbox() {
-    if (!lightboxDialog || !lightboxImg || !lightboxCaption || filteredList.length === 0) return;
-    const item = filteredList[currentIndex];
-    const imgPath = `assets/chantiers/${item.fichier}`;
-    const rawFallback = `https://raw.githubusercontent.com/jordan64-labs/Joclean/main/assets/chantiers/${item.fichier}`;
+  function escapeHtml(str) {
+    return String(str || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
 
-    lightboxImg.onerror = () => {
-      lightboxImg.onerror = null;
-      lightboxImg.src = rawFallback;
+  function buildBeforeAfterHtml(item, showZoomBtn = false) {
+    const afterPath = `assets/chantiers/${item.fichier}`;
+    const afterRaw = `${RAW_BASE}${item.fichier}`;
+    const beforePath = `assets/chantiers/${item.fichierAvant}`;
+    const beforeRaw = `${RAW_BASE}${item.fichierAvant}`;
+    const safeTitle = escapeHtml(item.titre);
+
+    return `
+      <div class="ba-container" style="--pos: 50%;">
+        <img src="${afterPath}" onerror="this.onerror=null;this.src='${afterRaw}';" alt="${safeTitle} — Après" class="ba-img ba-img-after">
+        <img src="${beforePath}" onerror="this.onerror=null;this.src='${beforeRaw}';" alt="${safeTitle} — Avant" class="ba-img ba-img-before">
+        <span class="ba-badge ba-badge-before">Avant</span>
+        <span class="ba-badge ba-badge-after">Après</span>
+        <div class="ba-divider"><div class="ba-handle" aria-hidden="true">⇄</div></div>
+        <span class="ba-hint">⇄ Glisser le curseur</span>
+        <input type="range" class="ba-range" min="0" max="100" value="50" aria-label="Faire glisser pour comparer avant et après">
+        ${showZoomBtn ? '<button type="button" class="zoom-hint-btn" aria-label="Agrandir le comparatif">Agrandir ⤢</button>' : ""}
+      </div>
+    `;
+  }
+
+  function wireBeforeAfter(container) {
+    const ba = container.querySelector(".ba-container");
+    if (!ba) return;
+    const range = ba.querySelector(".ba-range");
+    if (!range) return;
+
+    const updatePos = () => {
+      ba.style.setProperty("--pos", `${range.value}%`);
     };
-    lightboxImg.src = imgPath;
-    lightboxImg.alt = item.titre;
-    lightboxCaption.textContent = `${item.titre} (${item.lieu}) — ${item.description} [${currentIndex + 1}/${filteredList.length}]`;
+
+    range.addEventListener("input", updatePos);
+    range.addEventListener("change", updatePos);
+
+    // Empêche le swipe du carrousel de se déclencher quand on manipule le curseur
+    ["touchstart", "touchmove", "touchend", "click"].forEach((evt) => {
+      range.addEventListener(evt, (e) => e.stopPropagation(), { passive: true });
+    });
+
+    // Adapte le ratio en plein écran selon la photo si dans la lightbox
+    if (container === lightboxMedia) {
+      const afterImg = ba.querySelector(".ba-img-after");
+      if (afterImg) {
+        afterImg.addEventListener("load", () => {
+          if (afterImg.naturalWidth && afterImg.naturalHeight) {
+            ba.style.aspectRatio = `${afterImg.naturalWidth} / ${afterImg.naturalHeight}`;
+          }
+        });
+      }
+    }
+  }
+
+  function updateLightbox() {
+    if (!lightboxDialog || !lightboxMedia || !lightboxCaption || filteredList.length === 0) return;
+    const item = filteredList[currentIndex];
+    const hasBefore = Boolean(item.fichierAvant);
+
+    if (hasBefore) {
+      lightboxMedia.innerHTML = buildBeforeAfterHtml(item, false);
+      wireBeforeAfter(lightboxMedia);
+    } else {
+      const imgPath = `assets/chantiers/${item.fichier}`;
+      const rawFallback = `${RAW_BASE}${item.fichier}`;
+      lightboxMedia.innerHTML = `<img src="${imgPath}" onerror="this.onerror=null;this.src='${rawFallback}';" alt="${escapeHtml(item.titre)}">`;
+    }
+
+    const modeTag = hasBefore ? " [Avant / Après]" : "";
+    lightboxCaption.textContent = `${item.titre} (${item.lieu})${modeTag} — ${item.description} [${currentIndex + 1}/${filteredList.length}]`;
 
     const hasMultiple = filteredList.length > 1;
     if (lightboxPrev) lightboxPrev.hidden = !hasMultiple;
     if (lightboxNext) lightboxNext.hidden = !hasMultiple;
+  }
+
+  function openLightbox() {
+    if (!lightboxDialog) return;
+    updateLightbox();
+    lightboxDialog.showModal();
   }
 
   function renderSlide() {
@@ -88,8 +159,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentIndex < 0) currentIndex = filteredList.length - 1;
 
     const item = filteredList[currentIndex];
+    const hasBefore = Boolean(item.fichierAvant);
     const imgPath = `assets/chantiers/${item.fichier}`;
-    const rawFallback = `https://raw.githubusercontent.com/jordan64-labs/Joclean/main/assets/chantiers/${item.fichier}`;
+    const rawFallback = `${RAW_BASE}${item.fichier}`;
     const badgeText = categoryLabels[item.categorie] || "Réalisation";
     const hasMultiple = filteredList.length > 1;
 
@@ -98,26 +170,43 @@ document.addEventListener("DOMContentLoaded", () => {
     if (carouselNav) carouselNav.hidden = !hasMultiple;
     if (carouselCounter) carouselCounter.textContent = `${currentIndex + 1} / ${filteredList.length}`;
 
-    galleryStage.innerHTML = `
-      <article class="photo-card">
+    const mediaHtml = hasBefore
+      ? buildBeforeAfterHtml(item, true)
+      : `
         <div class="photo-thumb-wrap">
-          <img src="${imgPath}" onerror="this.onerror=null;this.src='${rawFallback}';" alt="${item.titre} - ${item.lieu}" class="photo-thumb">
+          <img src="${imgPath}" onerror="this.onerror=null;this.src='${rawFallback}';" alt="${escapeHtml(item.titre)} - ${escapeHtml(item.lieu)}" class="photo-thumb">
           <span class="zoom-hint">Toucher pour agrandir</span>
         </div>
+      `;
+
+    galleryStage.innerHTML = `
+      <article class="photo-card ${hasBefore ? "" : "is-clickable"}">
+        ${mediaHtml}
         <div class="photo-meta">
-          <span class="photo-badge">${badgeText} • ${item.lieu}</span>
-          <h3>${item.titre}</h3>
-          <p>${item.description}</p>
+          <div class="photo-badges-row">
+            <span class="photo-badge">${escapeHtml(badgeText)} • ${escapeHtml(item.lieu)}</span>
+            ${hasBefore ? '<span class="photo-badge-ba">⇄ Avant / Après</span>' : ""}
+          </div>
+          <h3>${escapeHtml(item.titre)}</h3>
+          <p>${escapeHtml(item.description)}</p>
         </div>
       </article>
     `;
 
-    const card = galleryStage.querySelector(".photo-card");
-    if (card && lightboxDialog) {
-      card.addEventListener("click", () => {
-        updateLightbox();
-        lightboxDialog.showModal();
-      });
+    if (hasBefore) {
+      wireBeforeAfter(galleryStage);
+      const zoomBtn = galleryStage.querySelector(".zoom-hint-btn");
+      if (zoomBtn) {
+        zoomBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openLightbox();
+        });
+      }
+    } else {
+      const card = galleryStage.querySelector(".photo-card");
+      if (card) {
+        card.addEventListener("click", openLightbox);
+      }
     }
   }
 
@@ -150,14 +239,19 @@ document.addEventListener("DOMContentLoaded", () => {
   if (lightboxPrev) lightboxPrev.addEventListener("click", goPrev);
   if (lightboxNext) lightboxNext.addEventListener("click", goNext);
 
-  // Glissement tactile (swipe) sur mobile
+  // Glissement tactile (swipe) sur mobile — ignoré quand on touche le curseur Avant / Après
   let touchStartX = 0;
+  let touchOnSlider = false;
   if (galleryStage) {
     galleryStage.addEventListener("touchstart", (e) => {
-      touchStartX = e.changedTouches[0].screenX;
+      touchOnSlider = Boolean(e.target.closest(".ba-container"));
+      if (!touchOnSlider) {
+        touchStartX = e.changedTouches[0].screenX;
+      }
     }, { passive: true });
 
     galleryStage.addEventListener("touchend", (e) => {
+      if (touchOnSlider) return;
       const diff = e.changedTouches[0].screenX - touchStartX;
       if (Math.abs(diff) > 45) {
         if (diff > 0) goPrev();
@@ -169,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Navigation clavier dans la visionneuse
   document.addEventListener("keydown", (e) => {
     if (!lightboxDialog || !lightboxDialog.open) return;
+    if (document.activeElement && document.activeElement.classList.contains("ba-range")) return;
     if (e.key === "ArrowLeft") goPrev();
     if (e.key === "ArrowRight") goNext();
   });
@@ -272,27 +367,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const subject = encodeURIComponent(`Demande de devis Joclean - ${prestation} (${commune})`);
       const body = encodeURIComponent(
-        `Bonjour Jordan,
-
-` +
-        `Je souhaite obtenir un devis pour une prestation Joclean :
-
-` +
-        `- Nom / Entreprise : ${nom}
-` +
-        `- Téléphone : ${telephone}
-` +
-        `- Commune : ${commune}
-` +
-        `- Prestation : ${prestation}
-
-` +
-        `Précisions :
-${message}
-
-` +
-        `Cordialement,
-${nom}`
+        `Bonjour Jordan,\n\n` +
+        `Je souhaite obtenir un devis pour une prestation Joclean :\n\n` +
+        `- Nom / Entreprise : ${nom}\n` +
+        `- Téléphone : ${telephone}\n` +
+        `- Commune : ${commune}\n` +
+        `- Prestation : ${prestation}\n\n` +
+        `Précisions :\n${message}\n\n` +
+        `Cordialement,\n${nom}`
       );
 
       if (formStatus) {
